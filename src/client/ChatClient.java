@@ -29,7 +29,6 @@ public final class ChatClient {
      *
      * @param host 主机地址
      * @param port 端口
-     * @throws IOException
      */
     public void connect(String host, int port) throws IOException {
         if (isConnected)
@@ -65,7 +64,7 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
-    public void joinChatRoom(String roomName) {
+    public void enterChatRoom(String roomName) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.ENTER_CHAT_ROOM);
@@ -83,7 +82,7 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
-    public void leaveChatRoom(String roomName) {
+    public void exitChatRoom(String roomName) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.EXIT_CHAT_ROOM);
@@ -105,7 +104,6 @@ public final class ChatClient {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -120,15 +118,6 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
-
-    public void setUserName(String username) {
-        if (username == null)
-            return;
-        Message message = new Message(Commands.SET_USER_NAME);
-        message.set(FieldType.USER_NAME, username);
-        sendRawMessage(message);
-    }
-
     public void logout() throws IOException {
         if (!isLogin)
             return;
@@ -137,19 +126,18 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
-
-    public void sentMsgToRoom(String roomid, String msg) {
+    public void sendMsgToRoom(String roomName, String msg) {
         Message message = new Message(Commands.MSG_P2R);
         message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomid);
+        message.set(FieldType.ROOM_NAME, roomName);
         message.set(FieldType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
-    public void sendMsgToUser(String username, String msg) {
+    public void sendMsgToUser(String toName, String msg) {
         Message message = new Message(Commands.MSG_P2P);
         message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.SINGLE_NAME, username);
+        message.set(FieldType.SINGLE_NAME, toName);
         message.set(FieldType.MSG_TXT, msg);
         sendRawMessage(message);
     }
@@ -176,17 +164,14 @@ public final class ChatClient {
      * 退出客户端
      */
     public void shutdown() {
-        //TODO:
         if (!isConnected)
             return;
         isConnected = false;
         try {
             socketChannel.close();
             selector.close();
-
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
+            e.printStackTrace();
         }
 
     }
@@ -239,11 +224,11 @@ public final class ChatClient {
                                         }
                                         case MSG_P2P: {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromId = msg.get(FieldType.USER_NAME);
+                                            String fromName = msg.get(FieldType.USER_NAME);
                                             String toName = msg.get(FieldType.SINGLE_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(FieldType.MSG_TXT);
-                                                System.out.println(fromId + "对你说：" + txt);
+                                                System.out.println(fromName + "对你说：" + txt);
                                             } else {
                                                 System.out.println("发送给" + toName + "的消息发送失败：" + result);
                                             }
@@ -251,11 +236,11 @@ public final class ChatClient {
                                         }
                                         case MSG_P2R: {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromId = msg.get(FieldType.USER_NAME);
+                                            String fromName = msg.get(FieldType.USER_NAME);
                                             String roomName = msg.get(FieldType.ROOM_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(FieldType.MSG_TXT);
-                                                System.out.println("来自聊天室" + roomName + "的" + fromId + "说：" + txt);
+                                                System.out.println("来自聊天室" + roomName + "的" + fromName + "说：" + txt);
                                             } else {
                                                 System.out.println("发送到" + roomName + "消息发送失败：" + result);
                                             }
@@ -317,8 +302,7 @@ public final class ChatClient {
                                             }
                                             break;
                                         }
-                                        case SET_USER_NAME:
-                                            break;
+
                                         default:
                                             System.out.println("未识别的服务器指令：" + msg.getCommand().toString());
                                             break;

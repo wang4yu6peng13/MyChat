@@ -6,8 +6,7 @@ import java.util.Set;
 public class ServerMain {
 
     public static void main(String[] args) {
-        //在默认端口启动服务器（如果已经启动则跳过）
-        ChatServer server = new ChatServer();
+        ChatServer server = new ChatServer();//在默认端口启动服务器
         Thread serverThread = new Thread(server, "聊天服务器");
         serverThread.setDaemon(true);//后台进程
         serverThread.start();
@@ -17,11 +16,10 @@ public class ServerMain {
         Scanner scanner = new Scanner(System.in);
         while (!isExit) {
             String input = scanner.nextLine();
-            int choose = -1;
+            int choose;
             try {
                 choose = Integer.parseInt(input);
             } catch (Exception e) {
-                // TODO: handle exception
                 continue;
             }
             switch (choose) {
@@ -30,8 +28,7 @@ public class ServerMain {
                     if (users.isEmpty()) {
                         System.out.println("当前无用户登录");
                     } else {
-                        System.out.print("用户列表：" + users.toString());
-                        System.out.println();
+                        System.out.println("用户列表：" + users.toString());
                     }
                     break;
                 case 2:

@@ -17,11 +17,10 @@ public class ClientMain {
             System.out.println("发送消息格式为——#用户ID:消息正文 或者 $聊天室ID:消息正文");
             boolean isExit = false;
             while (!isExit) {
-                String input = null;
+                String input;
                 try {
                     input = scanner.nextLine();
                 } catch (Exception e) {
-                    // TODO: handle exception
                     continue;
                 }
                 if (StringHelper.isNullOrTrimEmpty(input))
@@ -48,20 +47,20 @@ public class ClientMain {
                         }
                         String str = input.substring(1);
                         int splitIndex = str.indexOf(":");
-                        String peerId = str.substring(0, splitIndex);
+                        String peerName = str.substring(0, splitIndex);
                         String message = str.substring(splitIndex + 1, str.length());
-                        if (StringHelper.isNullOrTrimEmpty(peerId) || StringHelper.isNullOrTrimEmpty(message)) {
+                        if (StringHelper.isNullOrTrimEmpty(peerName) || StringHelper.isNullOrTrimEmpty(message)) {
                             System.out.println("消息格式错误");
                             continue;
                         }
                         if (type.equals("#")) {
-                            if (peerId.equals(client.username)) {
+                            if (peerName.equals(client.username)) {
                                 System.out.println("不能对自己发消息");
                                 continue;
                             }
-                            client.sendMsgToUser(peerId, message);
+                            client.sendMsgToUser(peerName, message);
                         } else if (type.equals("$")) {
-                            client.sentMsgToRoom(peerId, message);
+                            client.sendMsgToRoom(peerName, message);
                         }
                         break;
                     default:
@@ -102,7 +101,7 @@ public class ClientMain {
                         System.out.print("输入你要加入的房间名称：");
                         String roomName = scanner.nextLine();
                         if (!StringHelper.isNullOrTrimEmpty(roomName)) {
-                            client.joinChatRoom(roomName);
+                            client.enterChatRoom(roomName);
                             System.out.println("正在加入聊天室...");
                         }
                         break;
@@ -120,7 +119,7 @@ public class ClientMain {
                         System.out.print("输入你要退出的房间名称：");
                         String roomName = scanner.nextLine();
                         if (!StringHelper.isNullOrTrimEmpty(roomName)) {
-                            client.leaveChatRoom(roomName);
+                            client.exitChatRoom(roomName);
                             System.out.println("正在退出聊天室[" + roomName + "]");
                         }
                         break;
@@ -142,7 +141,6 @@ public class ClientMain {
             scanner.close();
             scanner = null;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             client.shutdown();

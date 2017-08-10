@@ -26,14 +26,13 @@ public final class ChatServer implements Runnable {
     //保存所有聊天室的Map
     private Map<String, ChatRoom> rooms = Collections.synchronizedMap(new HashMap<String, ChatRoom>());//聊天室
     //保存所有用户的Map
-    private Map<String, UserEntity> users = Collections.synchronizedMap(new HashMap<String, UserEntity>());
+    private Map<String, User> users = Collections.synchronizedMap(new HashMap<String, User>());
     //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
     private int port;
     private String host;
 
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
-
 
     public ChatServer() {
         this(LOCAL_HOST, DEFAULT_PORT);
@@ -48,68 +47,8 @@ public final class ChatServer implements Runnable {
         this.port = port;
     }
 
-    public static void main(String[] args) {
-        //在默认端口启动服务器（如果已经启动则跳过）
-        ChatServer server = new ChatServer();
-        Thread serverThread = new Thread(server, "聊天服务器");
-        serverThread.setDaemon(true);//后台进程
-        serverThread.start();
-        System.out.println("===输入选择项===");
-        System.out.println("1.获取用户列表；2.获取聊天室列表；3.获取指定聊天室成员；4.关闭服务器");
-        boolean isExit = false;
-        Scanner scanner = new Scanner(System.in);
-        while (!isExit) {
-            String input = scanner.nextLine();
-            int choose = -1;
-            try {
-                choose = Integer.parseInt(input);
-            } catch (Exception e) {
-                // TODO: handle exception
-                continue;
-            }
-            switch (choose) {
-                case 1:
-                    Set<String> users = server.getUserList();
-                    if (users.isEmpty()) {
-                        System.out.println("当前无用户登录");
-                    } else {
-                        System.out.print("用户列表：" + users.toString());
-                        System.out.println();
-                    }
-                    break;
-                case 2:
-                    if (server.getChatRooms().isEmpty()) {
-                        System.out.println("当前无聊天室");
-                    } else {
-                        System.out.println("聊天室列表：" + server.getChatRooms().toString());
-                    }
-                    break;
-                case 3:
-
-                    break;
-                case 4:
-                    try {
-                        serverThread.interrupt();
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                        e.printStackTrace();
-                    }
-                    isExit = true;
-                    break;
-                default:
-                    System.out.println("无效选项，请重新输入！");
-                    break;
-            }
-        }
-        scanner.close();
-        System.out.print("服务器已成功退出！");
-    }
-
-
     /**
      * 返回当前用户集合
-     *
-     * @return
      */
     public Set<String> getUserList() {
         return users.keySet();
@@ -117,8 +56,6 @@ public final class ChatServer implements Runnable {
 
     /**
      * 返回当前聊天室集合
-     *
-     * @return
      */
     public Set<String> getChatRooms() {
         return rooms.keySet();
@@ -126,18 +63,13 @@ public final class ChatServer implements Runnable {
 
     /**
      * 返回指定聊天室的用户成员列表
-     *
-     * @param room_id
-     * @return
      */
-    public Set<UserEntity> getUsersOfChatRoom(String room_id) {
+    public Set<User> getUsersOfChatRoom(String room_id) {
         return null;
     }
 
     /**
      * 最底层的接口，给其他接口调用
-     *
-     * @param message
      */
     private void sendRawMessage(SocketChannel sc, Message message) throws IOException {
         if (sc != null && message != null) {
@@ -195,7 +127,7 @@ public final class ChatServer implements Runnable {
                                             if (!users.containsKey(username)) {
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
                                                 System.out.println("用户" + username + "登录成功");
-                                                UserEntity user = new UserEntity(username, sc);
+                                                User user = new User(username, sc);
                                                 users.put(username, user);
                                             } else {
                                                 message.set(FieldType.RESPONSE_STATUS, "该帐号已经登录");
@@ -274,7 +206,7 @@ public final class ChatServer implements Runnable {
                                                     ChatRoom room = new ChatRoom(roomId);
                                                     room.addUser(username);
                                                     rooms.put(roomId, room);
-                                                    UserEntity user = users.get(username);
+                                                    User user = users.get(username);
                                                     if (user != null)
                                                         user.joinRoom(roomId);
                                                     message.set(FieldType.RESPONSE_STATUS, "成功");
@@ -296,7 +228,7 @@ public final class ChatServer implements Runnable {
                                                 ChatRoom room = rooms.get(roomId);
                                                 if (!room.hasUser(username)) {
                                                     room.addUser(username);
-                                                    UserEntity user = users.get(username);
+                                                    User user = users.get(username);
                                                     if (user != null)
                                                         user.joinRoom(roomId);
                                                     message.set(FieldType.RESPONSE_STATUS, "成功");
@@ -314,7 +246,7 @@ public final class ChatServer implements Runnable {
                                             System.out.println("用户" + username + "请求离开聊天室" + roomId);
                                             Message message = new Message(Commands.LEAVE_CHAT_ROOM);
                                             if (rooms.containsKey(roomId)) {
-                                                UserEntity user = users.get(username);
+                                                User user = users.get(username);
                                                 if (user != null)
                                                     user.leaveRoom(roomId);
                                                 ChatRoom room = rooms.get(roomId);
@@ -437,7 +369,7 @@ public final class ChatServer implements Runnable {
         if (sc != null) {
             if (users.containsValue(sc)) {
                 for (String key : users.keySet()) {
-                    UserEntity user = users.get(key);
+                    User user = users.get(key);
                     if (user.getSocketChannel() == sc) {
                         users.remove(key);//从用户列表中移除用户
                         for (String room : user.getJoinedRooms()) {
@@ -462,5 +394,6 @@ public final class ChatServer implements Runnable {
     public int getPort() {
         return port;
     }
+
 
 }

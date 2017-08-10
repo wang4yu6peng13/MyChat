@@ -1,10 +1,8 @@
 package utils;
 
 public class StringHelper {
-	private StringHelper(){}
-	
-	public static  boolean isNullOrTrimEmpty(String str)
+	public static boolean isNullOrTrimEmpty(String str)
 	{
-		return str==null?false:str.trim().isEmpty();
+		return str!=null&&str.trim().isEmpty();
 	}
 }

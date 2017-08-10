@@ -5,13 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserEntity {
+public class User {
     private String username;
     private String password;
     private SocketChannel socketChannel;
     private Set<String> mJoinedRooms = Collections.synchronizedSet(new HashSet<String>());
 
-    public UserEntity(String username, SocketChannel socketChannel) throws IllegalArgumentException {
+    public User(String username, SocketChannel socketChannel) throws IllegalArgumentException {
         if (username == null)
             throw new IllegalArgumentException("用户名不能为空");
         this.username = username;
@@ -40,8 +40,8 @@ public class UserEntity {
 
     @Override
     public boolean equals(Object user) {
-        if (user instanceof UserEntity) {
-            UserEntity entity = (UserEntity) user;
+        if (user instanceof User) {
+            User entity = (User) user;
             return entity.username.equals(username);
         }
         return false;

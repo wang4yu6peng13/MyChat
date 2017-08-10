@@ -16,7 +16,7 @@ public final class ChatRoom {
         this.roomName = roomName;
     }
 
-    private String getRoomId() {
+    private String getRoomName() {
         return this.roomName;
     }
 
@@ -51,14 +51,10 @@ public final class ChatRoom {
         return false;
     }
 
-    ;
-
     @Override
     public int hashCode() {
         return roomName.hashCode();
     }
-
-
 
     @Override
     public String toString() {

@@ -1,4 +1,4 @@
-package com.ioilala.chat;
+package client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,8 +10,12 @@ import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
-import com.ioilala.utils.SerializeHelper;
-import com.ioilala.utils.StringHelper;
+
+import chat.Commands;
+import chat.FieldType;
+import chat.Message;
+import utils.SerializeHelper;
+import utils.StringHelper;
 
 public final class ChatClient {
     private Selector selector = null;

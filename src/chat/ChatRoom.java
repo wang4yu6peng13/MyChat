@@ -1,12 +1,12 @@
-package com.ioilala.chat;
+package chat;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.ioilala.utils.StringHelper;
+import utils.StringHelper;
 
-final class ChatRoom {
+public final class ChatRoom {
     private String roomName = null;
     private Set<String> users = Collections.synchronizedSet(new HashSet<String>());
 
@@ -17,7 +17,7 @@ final class ChatRoom {
     }
 
     private String getRoomId() {
-        return new String(roomName);
+        return this.roomName;
     }
 
     public Set<String> getUsers() {
@@ -62,6 +62,6 @@ final class ChatRoom {
 
     @Override
     public String toString() {
-        return new String(roomName);
+        return roomName;
     }
 }

@@ -1,4 +1,4 @@
-package com.ioilala.chat;
+package server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,8 +17,9 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.ioilala.utils.SerializeHelper;
-import com.ioilala.utils.StringHelper;
+import chat.*;
+import utils.SerializeHelper;
+import utils.StringHelper;
 
 public final class ChatServer implements Runnable {
     private Selector selector = null;//用于注册所有连接到服务器的SocketChannel对象
@@ -32,6 +33,20 @@ public final class ChatServer implements Runnable {
 
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
+
+
+    public ChatServer() {
+        this(LOCAL_HOST, DEFAULT_PORT);
+    }
+
+    public ChatServer(int port) {
+        this(LOCAL_HOST, port);
+    }
+
+    public ChatServer(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
 
     public static void main(String[] args) {
         //在默认端口启动服务器（如果已经启动则跳过）
@@ -90,24 +105,6 @@ public final class ChatServer implements Runnable {
         System.out.print("服务器已成功退出！");
     }
 
-    public ChatServer() {
-        this(LOCAL_HOST, DEFAULT_PORT);
-    }
-
-    public ChatServer(int port) {
-        this(LOCAL_HOST, port);
-    }
-
-    /**
-     * 创建一个绑定到指定端口的Server实例
-     *
-     * @param port
-     * @throws IOException
-     */
-    public ChatServer(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
 
     /**
      * 返回当前用户集合

@@ -1,11 +1,11 @@
-package com.ioilala.chat;
+package chat;
 
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-class UserEntity {
+public class UserEntity {
     private String username;
     private String password;
     private SocketChannel socketChannel;

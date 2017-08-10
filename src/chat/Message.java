@@ -1,45 +1,11 @@
-package com.ioilala.chat;
+package chat;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import com.ioilala.utils.SerializeHelper;
-
-enum Commands {
-    LOG_IN,
-    LOG_OUT,
-    QUERY_USERS,
-    QUERY_ALL_CHAT_ROOMS,
-    QUERY_MY_CHAT_ROOMS,
-    QUERY_ROOM_MEMBERS,
-    HEART_BEAT,
-    MSG_P2P,//个人对个人的消息
-    MSG_P2R,//聊天室消息
-    CREATE_CHAT_ROOM,
-    JOIN_CHAT_ROOM,
-    LEAVE_CHAT_ROOM,
-    SET_USER_NAME;
-};
-
-enum FieldType {
-    USER_ID,
-    USER_NAME,
-    PASS_WD,
-    PEER_ID,//单聊对象的ID
-    ROOM_ID,//聊天室ID
-    USER_LIST,//用户列表
-    ROOM_LIST_ALL,//所有房间列表
-    ROOM_LIST_ME,//我的聊天室列表
-    ROOM_MEMBERS,//用户列表
-    MSG_TXT,
-    RESPONSE_STATUS,
-    ENCODING;
-};
-
+import utils.SerializeHelper;
 
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;

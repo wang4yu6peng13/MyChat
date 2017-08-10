@@ -1,4 +1,4 @@
-package com.ioilala.utils;
+package utils;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package com.ioilala.utils;
+package utils;
 
 public class StringHelper {
 	private StringHelper(){}

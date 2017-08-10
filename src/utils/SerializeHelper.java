@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ioilala.utils;
+package utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -9,7 +9,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,14 +21,14 @@ import com.ioilala.utils.SerializeHelper;
 import com.ioilala.utils.StringHelper;
 
 public final class ChatServer implements Runnable {
-    private Selector mSelector = null;//用于注册所有连接到服务器的SocketChannel对象
+    private Selector selector = null;//用于注册所有连接到服务器的SocketChannel对象
     //保存所有聊天室的Map
-    private Map<String, ChatRoom> mRooms = Collections.synchronizedMap(new HashMap<String, ChatRoom>());//聊天室
+    private Map<String, ChatRoom> rooms = Collections.synchronizedMap(new HashMap<String, ChatRoom>());//聊天室
     //保存所有用户的Map
-    private Map<String, UserEntity> mUsers = Collections.synchronizedMap(new HashMap<String, UserEntity>());
-    //private Bind<String, SocketChannel> mUserSocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
-    private int mPort;
-    private String mHost;
+    private Map<String, UserEntity> users = Collections.synchronizedMap(new HashMap<String, UserEntity>());
+    //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
+    private int port;
+    private String host;
 
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
@@ -106,8 +105,8 @@ public final class ChatServer implements Runnable {
      * @throws IOException
      */
     public ChatServer(String host, int port) {
-        mHost = host;
-        mPort = port;
+        this.host = host;
+        this.port = port;
     }
 
     /**
@@ -116,7 +115,7 @@ public final class ChatServer implements Runnable {
      * @return
      */
     public Set<String> getUserList() {
-        return mUsers.keySet();
+        return users.keySet();
     }
 
     /**
@@ -125,7 +124,7 @@ public final class ChatServer implements Runnable {
      * @return
      */
     public Set<String> getChatRooms() {
-        return mRooms.keySet();
+        return rooms.keySet();
     }
 
     /**
@@ -151,15 +150,15 @@ public final class ChatServer implements Runnable {
 
     public void run() {
         try {
-            mSelector = Selector.open();
+            selector = Selector.open();
             ServerSocketChannel server = ServerSocketChannel.open();
-            InetSocketAddress isa = new InetSocketAddress(mHost, mPort);
+            InetSocketAddress isa = new InetSocketAddress(host, port);
             server.bind(isa);//绑定指定端口
             server.configureBlocking(false);
-            server.register(mSelector, SelectionKey.OP_ACCEPT);
-            System.out.println("服务器在" + mPort + "端口启动成功");
-            while (mSelector.select() > 0) {
-                Iterator<SelectionKey> keyIterator = mSelector.selectedKeys().iterator();
+            server.register(selector, SelectionKey.OP_ACCEPT);
+            System.out.println("服务器在" + port + "端口启动成功");
+            while (selector.select() > 0) {
+                Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
                 while (keyIterator.hasNext()) {
                     SelectionKey sk = keyIterator.next();
                     if (sk.isAcceptable()) {
@@ -167,7 +166,7 @@ public final class ChatServer implements Runnable {
                         sc = server.accept();//开始接收客户端连接
                         if (sc != null) {
                             sc.configureBlocking(false);
-                            sc.register(mSelector, SelectionKey.OP_READ);
+                            sc.register(selector, SelectionKey.OP_READ);
                             sk.interestOps(SelectionKey.OP_ACCEPT);
                         }
                     }
@@ -190,17 +189,17 @@ public final class ChatServer implements Runnable {
                             if (frame.length > 0) {
                                 Message msg = (Message) SerializeHelper.deSerialize(frame);
                                 if (msg != null) {
-                                    String userId = msg.get(FieldType.USER_ID);
+                                    String username = msg.get(FieldType.USER_ID);
                                     switch (msg.getCommand()) {
                                         case LOG_IN: {
-                                            System.out.println("用户" + userId + "请求登录...");
+                                            System.out.println("用户" + username + "请求登录...");
                                             Message message = new Message(Commands.LOG_IN);
                                             //TODO:检查用户名密码，暂时没有注册功能，就只检测用户名是否重复
-                                            if (!mUsers.containsKey(userId)) {
+                                            if (!users.containsKey(username)) {
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
-                                                System.out.println("用户" + userId + "登录成功");
-                                                UserEntity user = new UserEntity(userId, sc);
-                                                mUsers.put(userId, user);
+                                                System.out.println("用户" + username + "登录成功");
+                                                UserEntity user = new UserEntity(username, sc);
+                                                users.put(username, user);
                                             } else {
                                                 message.set(FieldType.RESPONSE_STATUS, "该帐号已经登录");
                                             }
@@ -209,12 +208,12 @@ public final class ChatServer implements Runnable {
                                             break;
                                         }
                                         case LOG_OUT: {
-                                            System.out.println("用户" + userId + "请求退出...");
+                                            System.out.println("用户" + username + "请求退出...");
                                             Message message = new Message(Commands.LOG_OUT);
-                                            if (mUsers.containsKey(userId)) {
+                                            if (users.containsKey(username)) {
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
-                                                mUsers.remove(userId);
-                                                System.out.println("用户" + userId + "退出成功");
+                                                users.remove(username);
+                                                System.out.println("用户" + username + "退出成功");
                                             } else {
                                                 message.set(FieldType.RESPONSE_STATUS, "该帐号已经退出");
                                             }
@@ -224,19 +223,19 @@ public final class ChatServer implements Runnable {
                                         case MSG_P2P: {
                                             String toId = msg.get(FieldType.PEER_ID);
                                             String txt = msg.get(FieldType.MSG_TXT);
-                                            System.out.println("用户" + userId + "发送消息给用户" + toId);
+                                            System.out.println("用户" + username + "发送消息给用户" + toId);
                                             Message message = new Message(Commands.MSG_P2P);
-                                            if (mUsers.containsKey(userId) &&
-                                                    mUsers.containsKey(toId)
+                                            if (users.containsKey(username) &&
+                                                    users.containsKey(toId)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
-                                                SocketChannel scPeer = mUsers.get(toId).getSocketChannel();
-                                                message.set(FieldType.USER_ID, userId);
+                                                SocketChannel scPeer = users.get(toId).getSocketChannel();
+                                                message.set(FieldType.USER_ID, username);
                                                 message.set(FieldType.PEER_ID, toId);
                                                 message.set(FieldType.MSG_TXT, txt);
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
                                                 sendRawMessage(scPeer, message);
                                             } else {
-                                                message.set(FieldType.USER_ID, userId);
+                                                message.set(FieldType.USER_ID, username);
                                                 message.set(FieldType.PEER_ID, toId);
                                                 message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
                                                 sendRawMessage(sc, message);
@@ -246,23 +245,23 @@ public final class ChatServer implements Runnable {
                                         case MSG_P2R: {
                                             String roomId = msg.get(FieldType.ROOM_ID);
                                             String txt = msg.get(FieldType.MSG_TXT);
-                                            System.out.println("用户" + userId + "发送消息到聊天室" + roomId);
+                                            System.out.println("用户" + username + "发送消息到聊天室" + roomId);
                                             Message message = new Message(Commands.MSG_P2R);
-                                            if (mUsers.containsKey(userId) &&
-                                                    mRooms.containsKey(roomId) && mRooms.get(roomId).hasUser(userId)
+                                            if (users.containsKey(username) &&
+                                                    rooms.containsKey(roomId) && rooms.get(roomId).hasUser(username)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
-                                                message.set(FieldType.USER_ID, userId);
+                                                message.set(FieldType.USER_ID, username);
                                                 message.set(FieldType.ROOM_ID, roomId);
                                                 message.set(FieldType.MSG_TXT, txt);
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
-                                                for (String user : mRooms.get(roomId).getUsers()) {
-                                                    if (!user.equals(userId)) {
-                                                        SocketChannel socketChannel = mUsers.get(user).getSocketChannel();
+                                                for (String user : rooms.get(roomId).getUsers()) {
+                                                    if (!user.equals(username)) {
+                                                        SocketChannel socketChannel = users.get(user).getSocketChannel();
                                                         sendRawMessage(socketChannel, message);
                                                     }
                                                 }
                                             } else {
-                                                message.set(FieldType.USER_ID, userId);
+                                                message.set(FieldType.USER_ID, username);
                                                 message.set(FieldType.ROOM_ID, roomId);
                                                 message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
                                                 sendRawMessage(sc, message);
@@ -270,15 +269,15 @@ public final class ChatServer implements Runnable {
                                             break;
                                         }
                                         case CREATE_CHAT_ROOM: {
-                                            System.out.println("用户" + userId + "请求创建聊天室");
+                                            System.out.println("用户" + username + "请求创建聊天室");
                                             String roomId = msg.get(FieldType.ROOM_ID);
                                             Message message = new Message(Commands.CREATE_CHAT_ROOM);
                                             if (!StringHelper.isNullOrTrimEmpty(roomId)) {
-                                                if (!mRooms.containsKey(roomId)) {
+                                                if (!rooms.containsKey(roomId)) {
                                                     ChatRoom room = new ChatRoom(roomId);
-                                                    room.addUser(userId);
-                                                    mRooms.put(roomId, room);
-                                                    UserEntity user = mUsers.get(userId);
+                                                    room.addUser(username);
+                                                    rooms.put(roomId, room);
+                                                    UserEntity user = users.get(username);
                                                     if (user != null)
                                                         user.joinRoom(roomId);
                                                     message.set(FieldType.RESPONSE_STATUS, "成功");
@@ -294,13 +293,13 @@ public final class ChatServer implements Runnable {
                                         }
                                         case JOIN_CHAT_ROOM: {
                                             String roomId = msg.get(FieldType.ROOM_ID);
-                                            System.out.println("用户" + userId + "请求加入聊天室" + roomId);
+                                            System.out.println("用户" + username + "请求加入聊天室" + roomId);
                                             Message message = new Message(Commands.JOIN_CHAT_ROOM);
-                                            if (mRooms.containsKey(roomId)) {
-                                                ChatRoom room = mRooms.get(roomId);
-                                                if (!room.hasUser(userId)) {
-                                                    room.addUser(userId);
-                                                    UserEntity user = mUsers.get(userId);
+                                            if (rooms.containsKey(roomId)) {
+                                                ChatRoom room = rooms.get(roomId);
+                                                if (!room.hasUser(username)) {
+                                                    room.addUser(username);
+                                                    UserEntity user = users.get(username);
                                                     if (user != null)
                                                         user.joinRoom(roomId);
                                                     message.set(FieldType.RESPONSE_STATUS, "成功");
@@ -315,14 +314,14 @@ public final class ChatServer implements Runnable {
                                         }
                                         case LEAVE_CHAT_ROOM: {
                                             String roomId = msg.get(FieldType.ROOM_ID);
-                                            System.out.println("用户" + userId + "请求离开聊天室" + roomId);
+                                            System.out.println("用户" + username + "请求离开聊天室" + roomId);
                                             Message message = new Message(Commands.LEAVE_CHAT_ROOM);
-                                            if (mRooms.containsKey(roomId)) {
-                                                UserEntity user = mUsers.get(userId);
+                                            if (rooms.containsKey(roomId)) {
+                                                UserEntity user = users.get(username);
                                                 if (user != null)
                                                     user.leaveRoom(roomId);
-                                                ChatRoom room = mRooms.get(roomId);
-                                                room.removeUser(userId);
+                                                ChatRoom room = rooms.get(roomId);
+                                                room.removeUser(username);
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
                                             } else {
                                                 message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
@@ -331,7 +330,7 @@ public final class ChatServer implements Runnable {
                                             break;
                                         }
                                         case QUERY_ALL_CHAT_ROOMS: {
-                                            System.out.println("用户" + userId + "请求查询聊天室列表");
+                                            System.out.println("用户" + username + "请求查询聊天室列表");
                                             Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
                                             Set<String> rooms = getChatRooms();
                                             if (rooms.isEmpty()) {
@@ -341,13 +340,13 @@ public final class ChatServer implements Runnable {
                                                 message.set(FieldType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
                                             }
                                             sendRawMessage(sc, message);
-                                            System.out.println("已发送聊天室列表给" + userId);
+                                            System.out.println("已发送聊天室列表给" + username);
                                             break;
                                         }
                                         case QUERY_MY_CHAT_ROOMS: {
-                                            System.out.println("用户" + userId + "请求查询自己加入的所有聊天室列表");
+                                            System.out.println("用户" + username + "请求查询自己加入的所有聊天室列表");
                                             Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
-                                            Set<String> rooms = mUsers.get(userId).getJoinedRooms();
+                                            Set<String> rooms = users.get(username).getJoinedRooms();
                                             if (rooms.isEmpty()) {
                                                 message.set(FieldType.ROOM_LIST_ALL, "");
                                             } else {
@@ -355,15 +354,15 @@ public final class ChatServer implements Runnable {
                                                 message.set(FieldType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
                                             }
                                             sendRawMessage(sc, message);
-                                            System.out.println("已发送聊天室列表给" + userId);
+                                            System.out.println("已发送聊天室列表给" + username);
                                             break;
                                         }
                                         case QUERY_ROOM_MEMBERS: {
                                             String roomId = msg.get(FieldType.ROOM_ID);
-                                            System.out.println("用户" + userId + "请求查询聊天室" + roomId + "的成员信息");
+                                            System.out.println("用户" + username + "请求查询聊天室" + roomId + "的成员信息");
                                             Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
-                                            if (mRooms.containsKey(roomId)) {
-                                                Set<String> users = mRooms.get(roomId).getUsers();
+                                            if (rooms.containsKey(roomId)) {
+                                                Set<String> users = rooms.get(roomId).getUsers();
                                                 message.set(FieldType.RESPONSE_STATUS, "成功");
                                                 if (users.isEmpty()) {
                                                     message.set(FieldType.ROOM_MEMBERS, "");
@@ -375,11 +374,11 @@ public final class ChatServer implements Runnable {
                                                 message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
                                             sendRawMessage(sc, message);
-                                            System.out.println("已发送聊天室" + roomId + "成员列表给" + userId);
+                                            System.out.println("已发送聊天室" + roomId + "成员列表给" + username);
                                             break;
                                         }
                                         case QUERY_USERS: {
-                                            System.out.println("用户" + userId + "请求获取用户列表");
+                                            System.out.println("用户" + username + "请求获取用户列表");
                                             Message message = new Message(Commands.QUERY_USERS);
                                             Set<String> users = getUserList();
                                             if (users.isEmpty()) {
@@ -389,7 +388,7 @@ public final class ChatServer implements Runnable {
                                                 message.set(FieldType.USER_LIST, usersStr.substring(1, usersStr.length() - 1));
                                             }
                                             sendRawMessage(sc, message);
-                                            System.out.println("已发送用户列表给" + userId);
+                                            System.out.println("已发送用户列表给" + username);
                                             break;
                                         }
                                         case SET_USER_NAME:
@@ -425,9 +424,9 @@ public final class ChatServer implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (mSelector != null) {
+            if (selector != null) {
                 try {
-                    mSelector.close();
+                    selector.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -439,13 +438,13 @@ public final class ChatServer implements Runnable {
     private void closeClient(SelectionKey sk, SocketChannel sc) throws IOException {
         sk.cancel();
         if (sc != null) {
-            if (mUsers.containsValue(sc)) {
-                for (String key : mUsers.keySet()) {
-                    UserEntity user = mUsers.get(key);
+            if (users.containsValue(sc)) {
+                for (String key : users.keySet()) {
+                    UserEntity user = users.get(key);
                     if (user.getSocketChannel() == sc) {
-                        mUsers.remove(key);//从用户列表中移除用户
+                        users.remove(key);//从用户列表中移除用户
                         for (String room : user.getJoinedRooms()) {
-                            mRooms.get(room).removeUser(user.getUserId());//从聊天室中移除用户
+                            rooms.get(room).removeUser(user.getUsername());//从聊天室中移除用户
                         }
                     }
                 }
@@ -464,7 +463,7 @@ public final class ChatServer implements Runnable {
     }
 
     public int getPort() {
-        return mPort;
+        return port;
     }
 
 }

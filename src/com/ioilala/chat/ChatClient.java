@@ -7,23 +7,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.util.Set;
-
 import com.ioilala.utils.SerializeHelper;
 import com.ioilala.utils.StringHelper;
 
-import sun.util.resources.cldr.sw.CalendarData_sw_KE;
-
 public final class ChatClient {
-    private Selector mSelector = null;
-    private SocketChannel mSocketChannel = null;
+    private Selector selector = null;
+    private SocketChannel socketChannel = null;
     private boolean isConnected = false;
     private boolean isLogin = false;
-    public String mUserId;
+    public String username;
 
     public static void main(String[] args) {
         ChatClient client = new ChatClient();
@@ -74,7 +69,7 @@ public final class ChatClient {
                             continue;
                         }
                         if (type.equals("#")) {
-                            if (peerId.equals(client.mUserId)) {
+                            if (peerId.equals(client.username)) {
                                 System.out.println("不能对自己发消息");
                                 continue;
                             }
@@ -90,11 +85,11 @@ public final class ChatClient {
                     case 0:
                         if (!client.hasLogin()) {
                             System.out.print("用户名:");
-                            String userid = scanner.nextLine();
+                            String username = scanner.nextLine();
                             System.out.print("密码:");
                             String passwd = scanner.nextLine();
-                            client.mUserId = userid;
-                            client.login(client.mUserId, passwd);
+                            client.username = username;
+                            client.login(client.username, passwd);
                             System.out.println("正在登录中...");
                         } else {
                             System.out.println("您已登录，请退出当前账户");
@@ -181,11 +176,11 @@ public final class ChatClient {
     public void connect(String host, int port) throws IOException {
         if (isConnected)
             return;//防止重复连接
-        mSelector = Selector.open();
+        selector = Selector.open();
         InetSocketAddress remote = new InetSocketAddress(host, port);
-        mSocketChannel = SocketChannel.open(remote);
-        mSocketChannel.configureBlocking(false);
-        mSocketChannel.register(mSelector, SelectionKey.OP_READ);
+        socketChannel = SocketChannel.open(remote);
+        socketChannel.configureBlocking(false);
+        socketChannel.register(selector, SelectionKey.OP_READ);
         isConnected = true;
         Thread clientThread = new ClientThread();
         clientThread.setDaemon(true);
@@ -207,7 +202,7 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomId))
             return;
         Message message = new Message(Commands.CREATE_CHAT_ROOM);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.ROOM_ID, roomId);
         sendRawMessage(message);
     }
@@ -216,7 +211,7 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomId))
             return;
         Message message = new Message(Commands.JOIN_CHAT_ROOM);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.ROOM_ID, roomId);
         sendRawMessage(message);
     }
@@ -225,7 +220,7 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomId))
             return;
         Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.ROOM_ID, roomId);
         sendRawMessage(message);
     }
@@ -234,7 +229,7 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomId))
             return;
         Message message = new Message(Commands.LEAVE_CHAT_ROOM);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.ROOM_ID, roomId);
         sendRawMessage(message);
     }
@@ -246,9 +241,9 @@ public final class ChatClient {
      * @param message
      */
     private void sendRawMessage(Message message) {
-        if (mSocketChannel != null && message != null) {
+        if (socketChannel != null && message != null) {
             try {
-                mSocketChannel.write(message.wrap());
+                socketChannel.write(message.wrap());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -256,23 +251,23 @@ public final class ChatClient {
         }
     }
 
-    public void login(String userid, String passwd) {
-        if (StringHelper.isNullOrTrimEmpty(userid) || StringHelper.isNullOrTrimEmpty(passwd)) {
+    public void login(String username, String passwd) {
+        if (StringHelper.isNullOrTrimEmpty(username) || StringHelper.isNullOrTrimEmpty(passwd)) {
             throw new IllegalArgumentException("用户名或密码不能为空");
         }
-        this.mUserId = userid;
+        this.username = username;
         Message message = new Message(Commands.LOG_IN);
-        message.set(FieldType.USER_ID, userid);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.PASS_WD, passwd);
         sendRawMessage(message);
     }
 
 
     public void setUserName(String username) {
-        if (mUserId == null)
+        if (username == null)
             return;
         Message message = new Message(Commands.SET_USER_NAME);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.USER_NAME, username);
         sendRawMessage(message);
     }
@@ -281,42 +276,42 @@ public final class ChatClient {
         if (!isLogin)
             return;
         Message message = new Message(Commands.LOG_OUT);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         sendRawMessage(message);
     }
 
 
     public void sentMsgToRoom(String roomid, String msg) {
         Message message = new Message(Commands.MSG_P2R);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         message.set(FieldType.ROOM_ID, roomid);
         message.set(FieldType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
-    public void sendMsgToUser(String userid, String msg) {
+    public void sendMsgToUser(String username, String msg) {
         Message message = new Message(Commands.MSG_P2P);
-        message.set(FieldType.USER_ID, mUserId);
-        message.set(FieldType.PEER_ID, userid);
+        message.set(FieldType.USER_ID, username);
+        message.set(FieldType.PEER_ID, username);
         message.set(FieldType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
     public void queryUserList() {
         Message message = new Message(Commands.QUERY_USERS);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         sendRawMessage(message);
     }
 
     public void queryAllRoomList() {
         Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         sendRawMessage(message);
     }
 
     public void queryMyRoomList() {
         Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
-        message.set(FieldType.USER_ID, mUserId);
+        message.set(FieldType.USER_ID, username);
         sendRawMessage(message);
     }
 
@@ -329,8 +324,8 @@ public final class ChatClient {
             return;
         isConnected = false;
         try {
-            mSocketChannel.close();
-            mSelector.close();
+            socketChannel.close();
+            selector.close();
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -351,8 +346,8 @@ public final class ChatClient {
     private class ClientThread extends Thread {
         public void run() {
             try {
-                while (mSelector.select() > 0) {
-                    Iterator<SelectionKey> keyIterator = mSelector.selectedKeys().iterator();
+                while (selector.select() > 0) {
+                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
                     while (keyIterator.hasNext()) {
                         SelectionKey sk = keyIterator.next();
                         if (sk.isReadable()) {

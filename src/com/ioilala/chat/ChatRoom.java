@@ -7,37 +7,37 @@ import java.util.Set;
 import com.ioilala.utils.StringHelper;
 
 final class ChatRoom {
-    private String mRoomId = null;
-    private Set<String> mUsers = Collections.synchronizedSet(new HashSet<String>());
+    private String roomName = null;
+    private Set<String> users = Collections.synchronizedSet(new HashSet<String>());
 
-    public ChatRoom(String id) throws IllegalArgumentException {
-        if (StringHelper.isNullOrTrimEmpty(id))
+    public ChatRoom(String roomName) throws IllegalArgumentException {
+        if (StringHelper.isNullOrTrimEmpty(roomName))
             throw new IllegalArgumentException("room id不能为空");
-        mRoomId = id;
+        this.roomName = roomName;
     }
 
     private String getRoomId() {
-        return new String(mRoomId);
+        return new String(roomName);
     }
 
     public Set<String> getUsers() {
-        return Collections.unmodifiableSet(mUsers);
+        return Collections.unmodifiableSet(users);
     }
 
-    public void addUser(String userId) {
-        mUsers.add(userId);
+    public void addUser(String username) {
+        users.add(username);
     }
 
-    public boolean hasUser(String userId) {
-        return mUsers.contains(userId);
+    public boolean hasUser(String username) {
+        return users.contains(username);
     }
 
-    public void removeUser(String userId) {
-        mUsers.remove(userId);
+    public void removeUser(String username) {
+        users.remove(username);
     }
 
     public int getUserCount() {
-        return mUsers.size();
+        return users.size();
     }
 
     @Override
@@ -46,7 +46,7 @@ final class ChatRoom {
             return false;
         if (obj instanceof ChatRoom) {
             ChatRoom room = (ChatRoom) obj;
-            return room.mRoomId.equals(this.mRoomId);
+            return room.roomName.equals(this.roomName);
         }
         return false;
     }
@@ -55,13 +55,13 @@ final class ChatRoom {
 
     @Override
     public int hashCode() {
-        return mRoomId.hashCode();
+        return roomName.hashCode();
     }
 
-    ;
+
 
     @Override
     public String toString() {
-        return new String(mRoomId);
+        return new String(roomName);
     }
 }

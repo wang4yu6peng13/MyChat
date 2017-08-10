@@ -1,5 +1,6 @@
 package client;
 
+import chat.ClientStatus;
 import utils.StringHelper;
 
 import java.util.Scanner;
@@ -11,12 +12,43 @@ public class ClientMain {
         Scanner scanner = new Scanner(System.in);
         try {
             client.connect("127.0.0.1", 8909);
-            System.out.println(">0：登录；>1：获取用户列表；>2.获取聊天室列表"
-                    + "；>3.创建聊天室；>4.加入聊天室；>5.查询房间成员；"
-                    + ">6.退出聊天室；>7.退出登录；>8.退出客户端");
-            System.out.println("发送消息格式为——#用户ID:消息正文 或者 $聊天室ID:消息正文");
+//            System.out.println(">0：登录；>1：获取用户列表；>2.获取聊天室列表"
+//                    + "；>3.创建聊天室；>4.加入聊天室；>5.查询房间成员；"
+//                    + ">6.退出聊天室；>7.退出登录；>8.退出客户端");
+//            System.out.println("发送消息格式为——#用户ID:消息正文 或者 $聊天室ID:消息正文");
+
+            System.out.println("命令:");
+            System.out.println("$create 房间名 房间简介 \t-- 创建房间");
+            System.out.println("$enter 房间名 \t\t\t-- 进入聊天室");
+            System.out.println("$xxx \t\t\t\t\t-- 在聊天室中直接发言");
+            System.out.println("$@昵称 xxx \t\t\t\t-- 对另一人密语");
+            System.out.println("$exit \t\t\t\t\t-- 退出房间，回到大厅");
+
+            int status;
+            //System.out.println(client.getStatus());
             boolean isExit = false;
             while (!isExit) {
+
+                status = client.getStatus();
+                // 登录
+                if (!client.hasLogin()) {
+                    System.out.print("用户名:");
+                    String username = scanner.nextLine();
+                    System.out.print("密码:");
+                    String passwd = scanner.nextLine();
+                    client.username = username;
+                    client.login(client.username, passwd);
+                    System.out.println("正在登录中...");
+                } else {
+                    System.out.println("当前用户:"+ client.username);
+                }
+
+                if(status == ClientStatus.HALL.getValue()){
+                    // 聊天室列表
+                    client.queryAllRoomList();
+                }
+
+                // 命令
                 String input;
                 try {
                     input = scanner.nextLine();
@@ -25,6 +57,45 @@ public class ClientMain {
                 }
                 if (StringHelper.isNullOrTrimEmpty(input))
                     continue;
+
+                if(status == ClientStatus.HALL.getValue()){
+                    // create enter
+                    input = input.trim();
+                    if(input.startsWith("$create ")){
+                        String[] contents = input.split("\\s+");
+                        if(contents.length == 3){
+                            String roomName = contents[1];
+                            String roomInfo = contents[2];
+                            client.createChatRoom(roomName, roomInfo);
+                            System.out.println("正在创建聊天室...");
+                            status = client.getStatus();
+                        }
+                    }else if(input.startsWith("$enter ")){
+                        String[] contents = input.split("\\s+");
+                        if(contents.length == 2){
+                            String roomName = contents[1];
+                            client.enterChatRoom(roomName);
+                            System.out.println("正在加入聊天室...");
+                            status = client.getStatus();
+                            System.out.println(status);
+                        }
+                    }
+                }else if(status == ClientStatus.ROOM.getValue()){
+                    // xxx @ exit
+                    input = input.trim();
+//                    if(input.equals("$exit")){
+//                        client.exitChatRoom(roomName);
+//                        System.out.println("正在退出聊天室[" + roomName + "]");
+//                    }
+                    System.out.println("status: room");
+                }
+
+
+
+/*
+
+
+
                 int choose = -1;
                 String type = input.substring(0, 1);
                 switch (type) {
@@ -135,7 +206,7 @@ public class ClientMain {
                         break;
                     default:
                         break;
-                }
+                }*/
             }
             scanner.nextLine();
             scanner.close();

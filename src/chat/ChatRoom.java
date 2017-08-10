@@ -8,16 +8,26 @@ import utils.StringHelper;
 
 public final class ChatRoom {
     private String roomName = null;
+    private String roomInfo = null;
     private Set<String> users = Collections.synchronizedSet(new HashSet<String>());
 
     public ChatRoom(String roomName) throws IllegalArgumentException {
+        this(roomName, "roominfo");
+    }
+
+    public ChatRoom(String roomName, String roomInfo) throws IllegalArgumentException {
         if (StringHelper.isNullOrTrimEmpty(roomName))
-            throw new IllegalArgumentException("room id不能为空");
+            throw new IllegalArgumentException("room name不能为空");
         this.roomName = roomName;
+        this.roomInfo = roomInfo;
     }
 
     private String getRoomName() {
         return this.roomName;
+    }
+
+    private String getRoomInfo(){
+        return this.roomInfo;
     }
 
     public Set<String> getUsers() {

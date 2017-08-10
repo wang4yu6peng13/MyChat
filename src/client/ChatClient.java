@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import chat.ClientStatus;
 import chat.Commands;
 import chat.FieldType;
 import chat.Message;
@@ -23,6 +24,8 @@ public final class ChatClient {
     private boolean isConnected = false;
     private boolean isLogin = false;
     public String username;
+    private int status;
+
 
     /**
      * 连接到指定主机和端口
@@ -55,12 +58,21 @@ public final class ChatClient {
         return isLogin;
     }
 
-    public void createChatRoom(String roomName) {
+    public int getStatus(){
+        return this.status;
+    }
+//
+//    public void setStatus(int status){
+//        this.status = status;
+//    }
+
+    public void createChatRoom(String roomName, String roomInfo) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.CREATE_CHAT_ROOM);
         message.set(FieldType.USER_NAME, username);
         message.set(FieldType.ROOM_NAME, roomName);
+        message.set(FieldType.ROOM_INFO, roomInfo);
         sendRawMessage(message);
     }
 
@@ -250,6 +262,7 @@ public final class ChatClient {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("创建聊天室成功");
+                                                status = ClientStatus.HALL.getValue();
                                             } else {
                                                 System.out.println("创建聊天室失败:" + result);
                                             }
@@ -259,6 +272,9 @@ public final class ChatClient {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("加入聊天室成功");
+                                                status = ClientStatus.ROOM.getValue();
+                                                System.out.println(" " + status);
+                                                //System.out.println(" " +getStatus());
                                             } else {
                                                 System.out.println("加入聊天室失败:" + result);
                                             }

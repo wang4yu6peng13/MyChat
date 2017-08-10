@@ -200,15 +200,16 @@ public final class ChatServer implements Runnable {
                                         case CREATE_CHAT_ROOM: {
                                             System.out.println("用户" + username + "请求创建聊天室");
                                             String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String roomInfo = msg.get(FieldType.ROOM_INFO);
                                             Message message = new Message(Commands.CREATE_CHAT_ROOM);
                                             if (!StringHelper.isNullOrTrimEmpty(roomName)) {
                                                 if (!rooms.containsKey(roomName)) {
-                                                    ChatRoom room = new ChatRoom(roomName);
-                                                    room.addUser(username);
+                                                    ChatRoom room = new ChatRoom(roomName, roomInfo);
+                                                    //room.addUser(username);
                                                     rooms.put(roomName, room);
-                                                    User user = users.get(username);
-                                                    if (user != null)
-                                                        user.joinRoom(roomName);
+                                                    //User user = users.get(username);
+                                                    //if (user != null)
+                                                    //    user.joinRoom(roomName);
                                                     message.set(FieldType.RESPONSE_STATUS, "成功");
                                                 } else {
                                                     message.set(FieldType.RESPONSE_STATUS, "创建失败，已存在同名聊天室");

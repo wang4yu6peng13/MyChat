@@ -11,7 +11,7 @@ public enum Commands {
     MSG_P2P,//个人对个人的消息
     MSG_P2R,//聊天室消息
     CREATE_CHAT_ROOM,
-    JOIN_CHAT_ROOM,
-    LEAVE_CHAT_ROOM,
-    SET_USER_NAME;
+    ENTER_CHAT_ROOM,
+    EXIT_CHAT_ROOM,
+    SET_USER_NAME,
 }

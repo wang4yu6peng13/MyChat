@@ -91,37 +91,37 @@ public class ClientMain {
                         break;
                     case 3: {
                         System.out.print("输入房间名称：");
-                        String roomId = scanner.nextLine();
-                        if (!StringHelper.isNullOrTrimEmpty(roomId)) {
-                            client.createChatRoom(roomId);
+                        String roomName = scanner.nextLine();
+                        if (!StringHelper.isNullOrTrimEmpty(roomName)) {
+                            client.createChatRoom(roomName);
                             System.out.println("正在创建聊天室...");
                         }
                         break;
                     }
                     case 4: {
                         System.out.print("输入你要加入的房间名称：");
-                        String roomId = scanner.nextLine();
-                        if (!StringHelper.isNullOrTrimEmpty(roomId)) {
-                            client.joinChatRoom(roomId);
+                        String roomName = scanner.nextLine();
+                        if (!StringHelper.isNullOrTrimEmpty(roomName)) {
+                            client.joinChatRoom(roomName);
                             System.out.println("正在加入聊天室...");
                         }
                         break;
                     }
                     case 5: {
                         System.out.print("输入待查询成员的房间名称：");
-                        String roomId = scanner.nextLine();
-                        if (!StringHelper.isNullOrTrimEmpty(roomId)) {
-                            client.queryChatRoomMembers(roomId);
+                        String roomName = scanner.nextLine();
+                        if (!StringHelper.isNullOrTrimEmpty(roomName)) {
+                            client.queryChatRoomMembers(roomName);
                             System.out.println("正在查询聊天室所有成员...");
                         }
                         break;
                     }
                     case 6: {
                         System.out.print("输入你要退出的房间名称：");
-                        String roomId = scanner.nextLine();
-                        if (!StringHelper.isNullOrTrimEmpty(roomId)) {
-                            client.leaveChatRoom(roomId);
-                            System.out.println("正在退出聊天室[" + roomId + "]");
+                        String roomName = scanner.nextLine();
+                        if (!StringHelper.isNullOrTrimEmpty(roomName)) {
+                            client.leaveChatRoom(roomName);
+                            System.out.println("正在退出聊天室[" + roomName + "]");
                         }
                         break;
                     }

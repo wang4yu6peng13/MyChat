@@ -9,7 +9,7 @@ import utils.SerializeHelper;
 
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Map<FieldType, String> fields = new HashMap<>();//TODO：泛型支持，任意消息类型，包括文本，图片，语音，视频，文件等
+    private Map<FieldType, String> fields = new HashMap<>();
     private Commands command;
 
     public Message(Commands command) {
@@ -20,11 +20,10 @@ public class Message implements Serializable {
         return this.command;
     }
 
-    public Message set(FieldType key, String value) {
+    public void set(FieldType key, String value) {
         if (key != null && value != null) {
             fields.put(key, value);
         }
-        return this;
     }
 
     public String get(FieldType key) {

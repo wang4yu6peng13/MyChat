@@ -22,12 +22,12 @@ public class User {
         return this.username;
     }
 
-    public void joinRoom(String roomId) {
-        mJoinedRooms.add(roomId);
+    public void joinRoom(String roomName) {
+        mJoinedRooms.add(roomName);
     }
 
-    public void leaveRoom(String roomId) {
-        mJoinedRooms.remove(roomId);
+    public void leaveRoom(String roomName) {
+        mJoinedRooms.remove(roomName);
     }
 
     public Set<String> getJoinedRooms() {

@@ -224,14 +224,20 @@ public final class ChatServer implements Runnable {
                                             String roomName = msg.get(FieldType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求加入聊天室" + roomName);
                                             Message message = new Message(Commands.ENTER_CHAT_ROOM);
-                                            if (rooms.containsKey(roomName)) {
+                                            if (rooms.containsKey(roomName)) {  // 聊天室存在
                                                 ChatRoom room = rooms.get(roomName);
                                                 if (!room.hasUser(username)) {
-                                                    room.addUser(username);
                                                     User user = users.get(username);
-                                                    if (user != null)
-                                                        user.joinRoom(roomName);
-                                                    message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                    int roomNum = user.getJoinedRoomNum();
+                                                    if(roomNum == 0){
+                                                        room.addUser(username);
+                                                        if (user != null)
+                                                            user.joinRoom(roomName);
+                                                        message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                    }else{
+                                                        message.set(FieldType.RESPONSE_STATUS, "您已经在聊天室" + user.getJoinedRooms().toString());
+                                                    }
+
                                                 } else {
                                                     message.set(FieldType.RESPONSE_STATUS, "您已经在本聊天室中");
                                                 }
@@ -247,6 +253,23 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.EXIT_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {
                                                 User user = users.get(username);
+                                                if (user != null)
+                                                    user.leaveRoom(roomName);
+                                                ChatRoom room = rooms.get(roomName);
+                                                room.removeUser(username);
+                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                            } else {
+                                                message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
+                                            }
+                                            sendRawMessage(sc, message);
+                                            break;
+                                        }
+                                        case EXIT_CUR_CHAT_ROOM: {
+                                            User user = users.get(username);
+                                            String roomName = user.getJoinedRoomName();
+                                            System.out.println("用户" + username + "请求离开聊天室" + roomName);
+                                            Message message = new Message(Commands.EXIT_CHAT_ROOM);
+                                            if (rooms.containsKey(roomName)) {
                                                 if (user != null)
                                                     user.leaveRoom(roomName);
                                                 ChatRoom room = rooms.get(roomName);

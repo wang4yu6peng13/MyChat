@@ -3,6 +3,7 @@ package chat;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class User {
@@ -32,6 +33,22 @@ public class User {
 
     public Set<String> getJoinedRooms() {
         return Collections.unmodifiableSet(mJoinedRooms);
+    }
+
+    public int getJoinedRoomNum(){
+        return getJoinedRooms().size();
+    }
+
+    public String getJoinedRoomName(){
+        Set<String> set = getJoinedRooms();
+        String roomName = null;
+//        for(Iterator it = set.iterator(); it.hasNext();){
+//            roomName = it.next().toString();
+//        }
+        for(String s : set){
+            roomName = s;
+        }
+        return roomName;
     }
 
     public SocketChannel getSocketChannel() {

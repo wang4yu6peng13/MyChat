@@ -1,8 +1,15 @@
 package client;
 
 import chat.ClientStatus;
+import chat.Message;
+import chat.User;
+import utils.SerializeHelper;
 import utils.StringHelper;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientMain {
@@ -24,30 +31,21 @@ public class ClientMain {
             System.out.println("$@昵称 xxx \t\t\t\t-- 对另一人密语");
             System.out.println("$exit \t\t\t\t\t-- 退出房间，回到大厅");
 
-            int status;
-            //System.out.println(client.getStatus());
+            // 登录
+            if (!client.hasLogin()) {
+                System.out.print("用户名:");
+                String username = scanner.nextLine();
+                System.out.print("密码:");
+                String passwd = scanner.nextLine();
+                client.username = username;
+                client.login(client.username, passwd);
+                System.out.println("正在登录中...");
+            } else {
+                System.out.println("当前用户:"+ client.username);
+            }
+
             boolean isExit = false;
             while (!isExit) {
-
-                status = client.getStatus();
-                // 登录
-                if (!client.hasLogin()) {
-                    System.out.print("用户名:");
-                    String username = scanner.nextLine();
-                    System.out.print("密码:");
-                    String passwd = scanner.nextLine();
-                    client.username = username;
-                    client.login(client.username, passwd);
-                    System.out.println("正在登录中...");
-                } else {
-                    System.out.println("当前用户:"+ client.username);
-                }
-
-                if(status == ClientStatus.HALL.getValue()){
-                    // 聊天室列表
-                    client.queryAllRoomList();
-                }
-
                 // 命令
                 String input;
                 try {
@@ -58,37 +56,32 @@ public class ClientMain {
                 if (StringHelper.isNullOrTrimEmpty(input))
                     continue;
 
-                if(status == ClientStatus.HALL.getValue()){
-                    // create enter
-                    input = input.trim();
-                    if(input.startsWith("$create ")){
-                        String[] contents = input.split("\\s+");
-                        if(contents.length == 3){
-                            String roomName = contents[1];
-                            String roomInfo = contents[2];
-                            client.createChatRoom(roomName, roomInfo);
-                            System.out.println("正在创建聊天室...");
-                            status = client.getStatus();
-                        }
-                    }else if(input.startsWith("$enter ")){
-                        String[] contents = input.split("\\s+");
-                        if(contents.length == 2){
-                            String roomName = contents[1];
-                            client.enterChatRoom(roomName);
-                            System.out.println("正在加入聊天室...");
-                            status = client.getStatus();
-                            System.out.println(status);
-                        }
+                // create enter // xxx @ exit
+                input = input.trim();
+                if(input.startsWith("$create ")){
+                    String[] contents = input.split("\\s+");
+                    if(contents.length == 3){
+                        String roomName = contents[1];
+                        String roomInfo = contents[2];
+                        client.createChatRoom(roomName, roomInfo);
+                        System.out.println("正在创建聊天室...");
                     }
-                }else if(status == ClientStatus.ROOM.getValue()){
-                    // xxx @ exit
-                    input = input.trim();
-//                    if(input.equals("$exit")){
-//                        client.exitChatRoom(roomName);
-//                        System.out.println("正在退出聊天室[" + roomName + "]");
-//                    }
-                    System.out.println("status: room");
+                }else if(input.startsWith("$enter ")){
+                    String[] contents = input.split("\\s+");
+                    if(contents.length == 2){
+                        String roomName = contents[1];
+                        client.enterChatRoom(roomName);
+                        System.out.println("正在加入聊天室...");
+                    }
+                }else if(input.equals("$exit")){
+                    client.exitChatRoom();
+                    System.out.println("正在退出聊天室");
                 }
+
+
+
+
+
 
 
 

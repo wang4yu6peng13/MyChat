@@ -18,14 +18,20 @@ import chat.Message;
 import utils.SerializeHelper;
 import utils.StringHelper;
 
-public final class ChatClient {
+public class ChatClient {
     private Selector selector = null;
     private SocketChannel socketChannel = null;
     private boolean isConnected = false;
     private boolean isLogin = false;
     public String username;
-    private int status;
 
+//    public void setStatus(int status) {
+//        this.status = status;
+//    }
+//
+//    public int getStatus() {
+//        return status;
+//    }
 
     /**
      * 连接到指定主机和端口
@@ -57,14 +63,6 @@ public final class ChatClient {
     public boolean hasLogin() {
         return isLogin;
     }
-
-    public int getStatus(){
-        return this.status;
-    }
-//
-//    public void setStatus(int status){
-//        this.status = status;
-//    }
 
     public void createChatRoom(String roomName, String roomInfo) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
@@ -103,6 +101,13 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
+    public void exitChatRoom() {
+        if (!isLogin)
+            return;
+        Message message = new Message(Commands.EXIT_CUR_CHAT_ROOM);
+        message.set(FieldType.USER_NAME, username);
+        sendRawMessage(message);
+    }
 
     /**
      * 最底层的接口，给其他接口调用，用于发送最终的字节流
@@ -262,7 +267,9 @@ public final class ChatClient {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("创建聊天室成功");
-                                                status = ClientStatus.HALL.getValue();
+                                                //status = ClientStatus.HALL.getValue();
+                                                //queryAllRoomList();
+                                                //setStatus(0);
                                             } else {
                                                 System.out.println("创建聊天室失败:" + result);
                                             }
@@ -272,8 +279,9 @@ public final class ChatClient {
                                             String result = msg.get(FieldType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("加入聊天室成功");
-                                                status = ClientStatus.ROOM.getValue();
-                                                System.out.println(" " + status);
+                                                //status = ClientStatus.ROOM.getValue();
+                                                //setStatus(1);
+                                                //System.out.println(" " + status);
                                                 //System.out.println(" " +getStatus());
                                             } else {
                                                 System.out.println("加入聊天室失败:" + result);

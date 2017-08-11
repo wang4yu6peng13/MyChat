@@ -13,4 +13,5 @@ public enum Commands {
     CREATE_CHAT_ROOM,
     ENTER_CHAT_ROOM,
     EXIT_CHAT_ROOM,
+    EXIT_CUR_CHAT_ROOM,
 }

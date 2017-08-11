@@ -197,6 +197,35 @@ public final class ChatServer implements Runnable {
                                             }
                                             break;
                                         }
+                                        case MSG_CUR_P2R: {
+                                            User curuser = users.get(username);
+                                            String roomName = curuser.getJoinedRoomName();
+
+                                            String txt = msg.get(FieldType.MSG_TXT);
+                                            System.out.println("用户" + username + "发送消息到聊天室" + roomName);
+                                            Message message = new Message(Commands.MSG_P2R);
+                                            if (users.containsKey(username) && rooms.containsKey(roomName)
+                                                    && rooms.get(roomName).hasUser(username)
+                                                    && !StringHelper.isNullOrTrimEmpty(txt)) {
+                                                message.set(FieldType.USER_NAME, username);
+                                                message.set(FieldType.ROOM_NAME, roomName);
+                                                message.set(FieldType.MSG_TXT, txt);
+                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                for (String user : rooms.get(roomName).getUsers()) {
+                                                    if (!user.equals(username)) {
+                                                        // 发送给其他人
+                                                        SocketChannel socketChannel = users.get(user).getSocketChannel();
+                                                        sendRawMessage(socketChannel, message);
+                                                    }
+                                                }
+                                            } else {
+                                                message.set(FieldType.USER_NAME, username);
+                                                message.set(FieldType.ROOM_NAME, roomName);
+                                                message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
+                                                sendRawMessage(sc, message);
+                                            }
+                                            break;
+                                        }
                                         case CREATE_CHAT_ROOM: {
                                             System.out.println("用户" + username + "请求创建聊天室");
                                             String roomName = msg.get(FieldType.ROOM_NAME);

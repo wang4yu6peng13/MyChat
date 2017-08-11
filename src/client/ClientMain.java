@@ -76,14 +76,39 @@ public class ClientMain {
                 }else if(input.equals("$exit")){
                     client.exitChatRoom();
                     System.out.println("正在退出聊天室");
+                }else if(input.startsWith("$")){
+                    if (!client.hasLogin()) {
+                        System.out.println("尚未登录请先登录！");
+                        continue;
+                    }
+                    if(input.startsWith("$@")){
+                        String str = input.substring(2);
+                        int splitIndex = str.indexOf(" ");
+                        //System.out.println(splitIndex);
+                        if(splitIndex < 1){
+                            System.out.println("格式错误");
+                            continue;
+                        }
+                        String peerName = str.substring(0, splitIndex);
+                        String message = str.substring(splitIndex + 1);
+                        if (StringHelper.isNullOrTrimEmpty(peerName) || StringHelper.isNullOrTrimEmpty(message)) {
+                            System.out.println("消息格式错误");
+                            continue;
+                        }
+                        if (peerName.equals(client.username)) {
+                            System.out.println("不能对自己发消息");
+                            continue;
+                        }
+                        client.sendMsgToUser(peerName, message);
+                    }else{
+                        String message = input.substring(1);
+                        if (StringHelper.isNullOrTrimEmpty(message)) {
+                            System.out.println("消息格式错误");
+                            continue;
+                        }
+                        client.sendMsgToRoom(message);
+                    }
                 }
-
-
-
-
-
-
-
 
 /*
 

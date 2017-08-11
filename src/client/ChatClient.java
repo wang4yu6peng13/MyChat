@@ -151,6 +151,13 @@ public class ChatClient {
         sendRawMessage(message);
     }
 
+    public void sendMsgToRoom(String msg) {
+        Message message = new Message(Commands.MSG_CUR_P2R);
+        message.set(FieldType.USER_NAME, username);
+        message.set(FieldType.MSG_TXT, msg);
+        sendRawMessage(message);
+    }
+
     public void sendMsgToUser(String toName, String msg) {
         Message message = new Message(Commands.MSG_P2P);
         message.set(FieldType.USER_NAME, username);
@@ -245,9 +252,9 @@ public class ChatClient {
                                             String toName = msg.get(FieldType.SINGLE_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(FieldType.MSG_TXT);
-                                                System.out.println(fromName + "对你说：" + txt);
+                                                System.out.println("@" + fromName + " 对你说：" + txt);
                                             } else {
-                                                System.out.println("发送给" + toName + "的消息发送失败：" + result);
+                                                System.out.println("发送给 @" + toName + " 的消息发送失败：" + result);
                                             }
                                             break;
                                         }
@@ -257,7 +264,7 @@ public class ChatClient {
                                             String roomName = msg.get(FieldType.ROOM_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(FieldType.MSG_TXT);
-                                                System.out.println("来自聊天室" + roomName + "的" + fromName + "说：" + txt);
+                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
                                             } else {
                                                 System.out.println("发送到" + roomName + "消息发送失败：" + result);
                                             }

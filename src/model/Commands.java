@@ -1,4 +1,4 @@
-package chat;
+package model;
 
 public enum Commands {
     LOG_IN,

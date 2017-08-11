@@ -9,12 +9,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Scanner;
 
-import chat.ClientStatus;
-import chat.Commands;
-import chat.FieldType;
-import chat.Message;
+import model.Commands;
+import model.FieldType;
+import model.Message;
 import utils.SerializeHelper;
 import utils.StringHelper;
 

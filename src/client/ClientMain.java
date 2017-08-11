@@ -1,15 +1,7 @@
 package client;
 
-import chat.ClientStatus;
-import chat.Message;
-import chat.User;
-import utils.SerializeHelper;
 import utils.StringHelper;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientMain {

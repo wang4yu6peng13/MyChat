@@ -1,4 +1,4 @@
-package chat;
+package model;
 
 import java.util.Collections;
 import java.util.HashSet;

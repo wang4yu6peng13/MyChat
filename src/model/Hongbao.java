@@ -3,23 +3,25 @@ package model;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
     private int hongbaoId;
     private boolean isRandom = false;
-    private float money;
+    private AtomicInteger leftMoney;
+    private int totalMoney;
     private int count;
-    private Map<String, Float> hongbaoMap = new HashMap<>();
+    private Map<String, Integer> hbUsrMap = new HashMap<>();
 
     public void getInfoOrMax(){
-        Iterator<Map.Entry<String, Float>> iter = hongbaoMap.entrySet().iterator();
-        Float maxMoney = Float.MIN_VALUE;
+        Iterator<Map.Entry<String, Integer>> iter = hbUsrMap.entrySet().iterator();
+        Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
         //Map.Entry<String, Float> entryMax = null;
         while(iter.hasNext()){
-            Map.Entry<String, Float> entry = iter.next();
+            Map.Entry<String, Integer> entry = iter.next();
             String username = entry.getKey();
-            Float money = entry.getValue();
+            int money = entry.getValue();
             System.out.println("@" + username + " 抢到红包 ￥" + money);
             if(money > maxMoney){
                 maxMoney = money;
@@ -33,43 +35,43 @@ public class Hongbao {
         }
     }
 
-    public Map<String, Float> getHongbaoMap() {
-        return hongbaoMap;
-    }
-
-    public void setHongbaoMap(Map<String, Float> hongbaoMap) {
-        this.hongbaoMap = hongbaoMap;
+    public int getHongbaoId() {
+        return hongbaoId;
     }
 
     public void setHongbaoId(int hongbaoId) {
         this.hongbaoId = hongbaoId;
     }
 
-    public void setRandom(boolean random) {
-        isRandom = random;
-    }
-
-    public void setMoney(float money) {
-        this.money = money;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public int getHongbaoId() {
-        return hongbaoId;
-    }
-
     public boolean isRandom() {
         return isRandom;
     }
 
-    public float getMoney() {
-        return money;
+    public void setRandom(boolean random) {
+        isRandom = random;
+    }
+
+    public AtomicInteger getLeftMoney() {
+        return leftMoney;
+    }
+
+    public void setLeftMoney(AtomicInteger leftMoney) {
+        this.leftMoney = leftMoney;
+    }
+
+    public int getTotalMoney() {
+        return totalMoney;
+    }
+
+    public void setTotalMoney(int totalMoney) {
+        this.totalMoney = totalMoney;
     }
 
     public int getCount() {
         return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

@@ -68,6 +68,28 @@ public class ClientMain {
                 }else if(input.equals("$exit")){
                     client.exitChatRoom();
                     System.out.println("正在退出聊天室");
+                }else if(input.startsWith("$hongbao ")){
+                    String[] contents = input.split("\\s+");
+                    if(contents.length == 3){
+                        // 普通
+                        int totalMoney = Integer.parseInt(contents[1]);
+                        int count = Integer.parseInt(contents[2]);
+                        client.sendHongbao(totalMoney, count, false);
+                        System.out.println("正在发红包...");
+                    }else if(contents.length == 4){
+                        // 手气
+                        int totalMoney = Integer.parseInt(contents[1]);
+                        int count = Integer.parseInt(contents[2]);
+                        client.sendHongbao(totalMoney, count, true);
+                        System.out.println("正在发拼手气红包...");
+                    }
+                }else if(input.startsWith("$qiang ")){
+                    String[] contents = input.split("\\s+");
+                    if(contents.length == 2){
+                        int hbId = Integer.parseInt(contents[1]);
+                        client.qiangHongbao(hbId);
+                        System.out.println("正在抢红包...");
+                    }
                 }else if(input.startsWith("$")){
                     if (!client.hasLogin()) {
                         System.out.println("尚未登录请先登录！");

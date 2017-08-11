@@ -16,7 +16,7 @@ import model.Message;
 import utils.SerializeHelper;
 import utils.StringHelper;
 
-public class ChatClient {
+public final class ChatClient {
     private Selector selector = null;
     private SocketChannel socketChannel = null;
     private boolean isConnected = false;
@@ -180,6 +180,14 @@ public class ChatClient {
         Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
         message.set(FieldType.USER_NAME, username);
         sendRawMessage(message);
+    }
+
+    public void sendHongbao(int totalMoney, int count, boolean isRandom){
+
+    }
+
+    public void qiangHongbao(int hongbaoId){
+
     }
 
     /**

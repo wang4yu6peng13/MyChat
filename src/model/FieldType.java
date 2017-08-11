@@ -13,4 +13,8 @@ public enum FieldType {
     MSG_TXT,
     RESPONSE_STATUS,
     ENCODING,
+    HONGBAO_ID,
+    HONGBAO_TOTAL,
+    HONGBAO_COUNT,
+    HONGBAO_RANDOM,
 }

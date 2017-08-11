@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
-    private int hongbaoId;
+    private String hongbaoId;
     private boolean isRandom = false;
     private AtomicInteger leftMoney;
     private int totalMoney;
@@ -35,11 +35,11 @@ public class Hongbao {
         }
     }
 
-    public int getHongbaoId() {
+    public String getHongbaoId() {
         return hongbaoId;
     }
 
-    public void setHongbaoId(int hongbaoId) {
+    public void setHongbaoId(String hongbaoId) {
         this.hongbaoId = hongbaoId;
     }
 

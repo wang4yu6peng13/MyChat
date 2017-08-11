@@ -182,12 +182,20 @@ public final class ChatClient {
         sendRawMessage(message);
     }
 
-    public void sendHongbao(int totalMoney, int count, boolean isRandom){
-
+    public void sendHongbao(String totalMoney, String count, String isRandom){
+        Message message = new Message(Commands.SEND_HONGBAO);
+        message.set(FieldType.USER_NAME, username);
+        message.set(FieldType.HONGBAO_TOTAL, totalMoney);
+        message.set(FieldType.HONGBAO_COUNT, count);
+        message.set(FieldType.HONGBAO_RANDOM, isRandom);
+        sendRawMessage(message);
     }
 
-    public void qiangHongbao(int hongbaoId){
-
+    public void qiangHongbao(String hongbaoId){
+        Message message = new Message(Commands.QIANG_HONGBAO);
+        message.set(FieldType.USER_NAME, username);
+        message.set(FieldType.HONGBAO_ID, hongbaoId);
+        sendRawMessage(message);
     }
 
     /**
@@ -273,6 +281,32 @@ public final class ChatClient {
                                                 System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
                                             } else {
                                                 System.out.println("发送到" + roomName + "消息发送失败：" + result);
+                                            }
+                                            break;
+                                        }
+                                        case SEND_HONGBAO:{
+                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String fromName = msg.get(FieldType.USER_NAME);
+                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            if (result.equals("成功")) {
+                                                //TODO show info: send hb
+                                                //String txt = msg.get(FieldType.MSG_TXT);
+                                                //System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
+                                            } else {
+                                                //System.out.println("发送到" + roomName + "消息发送失败：" + result);
+                                            }
+                                            break;
+                                        }
+                                        case QIANG_HONGBAO:{
+                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String fromName = msg.get(FieldType.USER_NAME);
+                                            String toName = msg.get(FieldType.SINGLE_NAME);
+                                            if (result.equals("成功")) {
+                                                //TODO show info: qiang hb
+                                                //String txt = msg.get(FieldType.MSG_TXT);
+                                                //System.out.println("@" + fromName + " 对你说：" + txt);
+                                            } else {
+                                                //System.out.println("发送给 @" + toName + " 的消息发送失败：" + result);
                                             }
                                             break;
                                         }

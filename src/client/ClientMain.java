@@ -72,21 +72,21 @@ public class ClientMain {
                     String[] contents = input.split("\\s+");
                     if(contents.length == 3){
                         // 普通
-                        int totalMoney = Integer.parseInt(contents[1]);
-                        int count = Integer.parseInt(contents[2]);
-                        client.sendHongbao(totalMoney, count, false);
+                        String totalMoney = contents[1];
+                        String count = contents[2];
+                        client.sendHongbao(totalMoney, count, "0");
                         System.out.println("正在发红包...");
                     }else if(contents.length == 4){
                         // 手气
-                        int totalMoney = Integer.parseInt(contents[1]);
-                        int count = Integer.parseInt(contents[2]);
-                        client.sendHongbao(totalMoney, count, true);
+                        String totalMoney = contents[1];
+                        String count = contents[2];
+                        client.sendHongbao(totalMoney, count, "1");
                         System.out.println("正在发拼手气红包...");
                     }
                 }else if(input.startsWith("$qiang ")){
                     String[] contents = input.split("\\s+");
                     if(contents.length == 2){
-                        int hbId = Integer.parseInt(contents[1]);
+                        String hbId = contents[1];
                         client.qiangHongbao(hbId);
                         System.out.println("正在抢红包...");
                     }

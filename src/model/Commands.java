@@ -15,4 +15,6 @@ public enum Commands {
     ENTER_CHAT_ROOM,
     EXIT_CHAT_ROOM,
     EXIT_CUR_CHAT_ROOM,
+    SEND_HONGBAO,
+    QIANG_HONGBAO,
 }

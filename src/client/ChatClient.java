@@ -299,13 +299,13 @@ public final class ChatClient {
                                         }
                                         case QIANG_HONGBAO:{
                                             String result = msg.get(MsgType.RESPONSE_STATUS);
-                                            String fromName = msg.get(MsgType.USER_NAME);
-                                            String toName = msg.get(MsgType.SINGLE_NAME);
+                                            String nameQiang = msg.get(MsgType.USER_NAME);
+                                            String nameSentHb = msg.get(MsgType.SINGLE_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(MsgType.MSG_TXT);
-                                                System.out.println("@" + fromName + " 抢了 @" + toName + " 的红包，金额为：" + txt);
+                                                System.out.println("@" + nameQiang + " 抢了 @" + nameSentHb + " 的红包，金额为：" + txt);
                                             } else {
-                                                System.out.println("@" + toName + " 抢红包失败：" + result);
+                                                System.out.println("@" + nameQiang + " 抢红包失败：" + result);
                                             }
                                             break;
                                         }

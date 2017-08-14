@@ -410,6 +410,17 @@ public final class ChatServer implements Runnable {
                                             }
                                             break;
                                         }
+                                        case QIANG_HONGBAO: {
+                                            User curUser = users.get(username); // qiang
+                                            String roomName = curUser.getJoinedRoomName();
+
+                                            String hongbaoId = msg.get(MsgType.HONGBAO_ID);
+
+                                            set(MsgType.USER_NAME, nameQiang);
+                                            set(MsgType.SINGLE_NAME, nameSentHb);
+                                            set(MsgType.MSG_TXT, money);
+                                            break;
+                                        }
                                         default:
                                             System.out.println("未识别的指令：" + msg.getCommand().toString());
                                             break;

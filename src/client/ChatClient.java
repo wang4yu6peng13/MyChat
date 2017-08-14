@@ -1,5 +1,11 @@
 package client;
 
+import model.Commands;
+import model.FieldType;
+import model.Message;
+import utils.SerializeHelper;
+import utils.StringHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,12 +15,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
-
-import model.Commands;
-import model.FieldType;
-import model.Message;
-import utils.SerializeHelper;
-import utils.StringHelper;
 
 public final class ChatClient {
     private Selector selector = null;
@@ -289,11 +289,10 @@ public final class ChatClient {
                                             String fromName = msg.get(FieldType.USER_NAME);
                                             String roomName = msg.get(FieldType.ROOM_NAME);
                                             if (result.equals("成功")) {
-                                                //TODO show info: send hb
                                                 //String txt = msg.get(FieldType.MSG_TXT);
-                                                //System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
+                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 发了红包");
                                             } else {
-                                                //System.out.println("发送到" + roomName + "消息发送失败：" + result);
+                                                System.out.println("发送到" + roomName + "红包发送失败：" + result);
                                             }
                                             break;
                                         }
@@ -302,11 +301,10 @@ public final class ChatClient {
                                             String fromName = msg.get(FieldType.USER_NAME);
                                             String toName = msg.get(FieldType.SINGLE_NAME);
                                             if (result.equals("成功")) {
-                                                //TODO show info: qiang hb
-                                                //String txt = msg.get(FieldType.MSG_TXT);
-                                                //System.out.println("@" + fromName + " 对你说：" + txt);
+                                                String txt = msg.get(FieldType.MSG_TXT);
+                                                System.out.println("@" + fromName + " 抢了 @" + toName + " 的红包，金额为：" + txt);
                                             } else {
-                                                //System.out.println("发送给 @" + toName + " 的消息发送失败：" + result);
+                                                System.out.println("@" + toName + " 抢红包失败：" + result);
                                             }
                                             break;
                                         }

@@ -1,6 +1,6 @@
 package model;
 
-public enum FieldType {
+public enum MsgType {
     USER_NAME,
     PASS_WD,
     SINGLE_NAME,//单聊对象的name

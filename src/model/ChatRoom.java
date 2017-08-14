@@ -1,15 +1,16 @@
 package model;
 
+import utils.StringHelper;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import utils.StringHelper;
 
 public final class ChatRoom {
     private String roomName = null;
     private String roomInfo = null;
     private Set<String> users = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> hongbaos = Collections.synchronizedSet(new HashSet<>());
 
     public ChatRoom(String roomName) throws IllegalArgumentException {
         this(roomName, "roominfo");
@@ -48,6 +49,22 @@ public final class ChatRoom {
 
     public int getUserCount() {
         return users.size();
+    }
+
+    public Set<String> getHongbaos() {
+        return Collections.unmodifiableSet(hongbaos);
+    }
+
+    public void addHongbao(String hongbaoId) {
+        hongbaos.add(hongbaoId);
+    }
+
+    public boolean hasHongbao(String hongbaoId) {
+        return hongbaos.contains(hongbaoId);
+    }
+
+    public void removeHongbao(String hongbaoId) {
+        hongbaos.remove(hongbaoId);
     }
 
     @Override

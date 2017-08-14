@@ -1,24 +1,15 @@
 package server;
 
+import model.*;
+import utils.SerializeHelper;
+import utils.StringHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.AlreadyBoundException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import model.*;
-import utils.SerializeHelper;
-import utils.StringHelper;
+import java.nio.channels.*;
+import java.util.*;
 
 public final class ChatServer implements Runnable {
     private Selector selector = null;//用于注册所有连接到服务器的SocketChannel对象
@@ -27,6 +18,10 @@ public final class ChatServer implements Runnable {
     //保存所有用户的Map
     private Map<String, User> users = Collections.synchronizedMap(new HashMap<String, User>());
     //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
+
+    //红包
+    private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<String, Hongbao>());
+
     private int port;
     private String host;
 
@@ -115,19 +110,19 @@ public final class ChatServer implements Runnable {
                             if (frame.length > 0) {
                                 Message msg = (Message) SerializeHelper.deSerialize(frame);
                                 if (msg != null) {
-                                    String username = msg.get(FieldType.USER_NAME);
+                                    String username = msg.get(MsgType.USER_NAME);
                                     switch (msg.getCommand()) {
                                         case LOG_IN: {
                                             System.out.println("用户" + username + "请求登录...");
                                             Message message = new Message(Commands.LOG_IN);
                                             //TODO:检查用户名密码，暂时没有注册功能，就只检测用户名是否重复
                                             if (!users.containsKey(username)) {
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 System.out.println("用户" + username + "登录成功");
                                                 User user = new User(username, sc);
                                                 users.put(username, user);
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "该帐号已经登录");
+                                                message.set(MsgType.RESPONSE_STATUS, "该帐号已经登录");
                                             }
                                             //发送登录结果
                                             sendRawMessage(sc, message);
@@ -137,49 +132,49 @@ public final class ChatServer implements Runnable {
                                             System.out.println("用户" + username + "请求退出...");
                                             Message message = new Message(Commands.LOG_OUT);
                                             if (users.containsKey(username)) {
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 users.remove(username);
                                                 System.out.println("用户" + username + "退出成功");
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "该帐号已经退出");
+                                                message.set(MsgType.RESPONSE_STATUS, "该帐号已经退出");
                                             }
                                             sendRawMessage(sc, message);
                                             break;
                                         }
                                         case MSG_P2P: {
-                                            String toName = msg.get(FieldType.SINGLE_NAME);
-                                            String txt = msg.get(FieldType.MSG_TXT);
+                                            String toName = msg.get(MsgType.SINGLE_NAME);
+                                            String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息给用户" + toName);
                                             Message message = new Message(Commands.MSG_P2P);
                                             if (users.containsKey(username)
                                                     && users.containsKey(toName)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
                                                 SocketChannel scPeer = users.get(toName).getSocketChannel();
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.SINGLE_NAME, toName);
-                                                message.set(FieldType.MSG_TXT, txt);
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.SINGLE_NAME, toName);
+                                                message.set(MsgType.MSG_TXT, txt);
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 sendRawMessage(scPeer, message);
                                             } else {
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.SINGLE_NAME, toName);
-                                                message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.SINGLE_NAME, toName);
+                                                message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
                                                 sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
                                         case MSG_P2R: {
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
-                                            String txt = msg.get(FieldType.MSG_TXT);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
+                                            String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息到聊天室" + roomName);
                                             Message message = new Message(Commands.MSG_P2R);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.ROOM_NAME, roomName);
-                                                message.set(FieldType.MSG_TXT, txt);
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.MSG_TXT, txt);
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 for (String user : rooms.get(roomName).getUsers()) {
                                                     if (!user.equals(username)) {
                                                         // 发送给其他人
@@ -188,27 +183,27 @@ public final class ChatServer implements Runnable {
                                                     }
                                                 }
                                             } else {
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.ROOM_NAME, roomName);
-                                                message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
                                                 sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
                                         case MSG_CUR_P2R: {
-                                            User curuser = users.get(username);
-                                            String roomName = curuser.getJoinedRoomName();
+                                            User curUser = users.get(username);
+                                            String roomName = curUser.getJoinedRoomName();
 
-                                            String txt = msg.get(FieldType.MSG_TXT);
+                                            String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息到聊天室" + roomName);
                                             Message message = new Message(Commands.MSG_P2R);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.ROOM_NAME, roomName);
-                                                message.set(FieldType.MSG_TXT, txt);
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.MSG_TXT, txt);
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 for (String user : rooms.get(roomName).getUsers()) {
                                                     if (!user.equals(username)) {
                                                         // 发送给其他人
@@ -217,17 +212,17 @@ public final class ChatServer implements Runnable {
                                                     }
                                                 }
                                             } else {
-                                                message.set(FieldType.USER_NAME, username);
-                                                message.set(FieldType.ROOM_NAME, roomName);
-                                                message.set(FieldType.RESPONSE_STATUS, "消息发送失败");
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
                                                 sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
                                         case CREATE_CHAT_ROOM: {
                                             System.out.println("用户" + username + "请求创建聊天室");
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
-                                            String roomInfo = msg.get(FieldType.ROOM_INFO);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
+                                            String roomInfo = msg.get(MsgType.ROOM_INFO);
                                             Message message = new Message(Commands.CREATE_CHAT_ROOM);
                                             if (!StringHelper.isNullOrTrimEmpty(roomName)) {
                                                 if (!rooms.containsKey(roomName)) {
@@ -237,18 +232,18 @@ public final class ChatServer implements Runnable {
                                                     //User user = users.get(username);
                                                     //if (user != null)
                                                     //    user.joinRoom(roomName);
-                                                    message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                    message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 } else {
-                                                    message.set(FieldType.RESPONSE_STATUS, "创建失败，已存在同名聊天室");
+                                                    message.set(MsgType.RESPONSE_STATUS, "创建失败，已存在同名聊天室");
                                                 }
                                             } else {//返回错误消息
-                                                message.set(FieldType.RESPONSE_STATUS, "创建失败，聊天室名称不能为空");
+                                                message.set(MsgType.RESPONSE_STATUS, "创建失败，聊天室名称不能为空");
                                             }
                                             sendRawMessage(sc, message);
                                             break;
                                         }
                                         case ENTER_CHAT_ROOM: {
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求加入聊天室" + roomName);
                                             Message message = new Message(Commands.ENTER_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {  // 聊天室存在
@@ -260,22 +255,22 @@ public final class ChatServer implements Runnable {
                                                         room.addUser(username);
                                                         if (user != null)
                                                             user.joinRoom(roomName);
-                                                        message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                        message.set(MsgType.RESPONSE_STATUS, "成功");
                                                     }else{
-                                                        message.set(FieldType.RESPONSE_STATUS, "您已经在聊天室" + user.getJoinedRooms().toString());
+                                                        message.set(MsgType.RESPONSE_STATUS, "您已经在聊天室" + user.getJoinedRooms().toString());
                                                     }
 
                                                 } else {
-                                                    message.set(FieldType.RESPONSE_STATUS, "您已经在本聊天室中");
+                                                    message.set(MsgType.RESPONSE_STATUS, "您已经在本聊天室中");
                                                 }
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
+                                                message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
                                             sendRawMessage(sc, message);
                                             break;
                                         }
                                         case EXIT_CHAT_ROOM: {
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求离开聊天室" + roomName);
                                             Message message = new Message(Commands.EXIT_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {
@@ -284,9 +279,9 @@ public final class ChatServer implements Runnable {
                                                     user.leaveRoom(roomName);
                                                 ChatRoom room = rooms.get(roomName);
                                                 room.removeUser(username);
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
+                                                message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
                                             sendRawMessage(sc, message);
                                             break;
@@ -301,9 +296,9 @@ public final class ChatServer implements Runnable {
                                                     user.leaveRoom(roomName);
                                                 ChatRoom room = rooms.get(roomName);
                                                 room.removeUser(username);
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
+                                                message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
                                             sendRawMessage(sc, message);
                                             break;
@@ -313,10 +308,10 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
                                             Set<String> rooms = getChatRooms();
                                             if (rooms.isEmpty()) {
-                                                message.set(FieldType.ROOM_LIST_ALL, "");
+                                                message.set(MsgType.ROOM_LIST_ALL, "");
                                             } else {
                                                 String roomsStr = rooms.toString();
-                                                message.set(FieldType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
+                                                message.set(MsgType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
                                             }
                                             sendRawMessage(sc, message);
                                             System.out.println("已发送聊天室列表给" + username);
@@ -327,30 +322,30 @@ public final class ChatServer implements Runnable {
 //                                            Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
 //                                            Set<String> rooms = users.get(username).getJoinedRooms();
 //                                            if (rooms.isEmpty()) {
-//                                                message.set(FieldType.ROOM_LIST_ALL, "");
+//                                                message.set(MsgType.ROOM_LIST_ALL, "");
 //                                            } else {
 //                                                String roomsStr = rooms.toString();
-//                                                message.set(FieldType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
+//                                                message.set(MsgType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
 //                                            }
 //                                            sendRawMessage(sc, message);
 //                                            System.out.println("已发送聊天室列表给" + username);
 //                                            break;
 //                                        }
                                         case QUERY_ROOM_MEMBERS: {
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求查询聊天室" + roomName + "的成员信息");
                                             Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
                                             if (rooms.containsKey(roomName)) {
                                                 Set<String> users = rooms.get(roomName).getUsers();
-                                                message.set(FieldType.RESPONSE_STATUS, "成功");
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 if (users.isEmpty()) {
-                                                    message.set(FieldType.ROOM_MEMBERS, "");
+                                                    message.set(MsgType.ROOM_MEMBERS, "");
                                                 } else {
                                                     String usersStr = users.toString();
-                                                    message.set(FieldType.ROOM_MEMBERS, usersStr.substring(1, usersStr.length() - 1));
+                                                    message.set(MsgType.ROOM_MEMBERS, usersStr.substring(1, usersStr.length() - 1));
                                                 }
                                             } else {
-                                                message.set(FieldType.RESPONSE_STATUS, "不存在该聊天室");
+                                                message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
                                             sendRawMessage(sc, message);
                                             System.out.println("已发送聊天室" + roomName + "成员列表给" + username);
@@ -361,13 +356,58 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.QUERY_USERS);
                                             Set<String> users = getUserList();
                                             if (users.isEmpty()) {
-                                                message.set(FieldType.USER_LIST, "");
+                                                message.set(MsgType.USER_LIST, "");
                                             } else {
                                                 String usersStr = users.toString();
-                                                message.set(FieldType.USER_LIST, usersStr.substring(1, usersStr.length() - 1));
+                                                message.set(MsgType.USER_LIST, usersStr.substring(1, usersStr.length() - 1));
                                             }
                                             sendRawMessage(sc, message);
                                             System.out.println("已发送用户列表给" + username);
+                                            break;
+                                        }
+                                        case SEND_HONGBAO: {
+                                            User curUser = users.get(username);
+                                            String roomName = curUser.getJoinedRoomName();
+
+                                            Hongbao hongbao = new Hongbao();
+                                            String hongbaoId = hongbao.getId();
+
+                                            String totalMoney = msg.get(MsgType.HONGBAO_TOTAL);
+                                            String count = msg.get(MsgType.HONGBAO_COUNT);
+                                            String isRandom = msg.get(MsgType.HONGBAO_RANDOM);
+                                            hongbao.setTotalMoney(Integer.valueOf(totalMoney));
+                                            hongbao.setCount(Integer.valueOf(count));
+                                            hongbao.setRandom(!isRandom.equals("0"));
+                                            hongbao.setRoomName(roomName);
+
+                                            hongbaos.put(hongbaoId, hongbao);
+
+                                            System.out.println("用户" + username + "在聊天室" + roomName + "发了红包" + hongbaoId);
+                                            Message message = new Message(Commands.SEND_HONGBAO);
+                                            if (users.containsKey(username) && rooms.containsKey(roomName)
+                                                    && rooms.get(roomName).hasUser(username)) {
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.HONGBAO_ID, hongbaoId);
+//                                                message.set(MsgType.HONGBAO_TOTAL, totalMoney);
+//                                                message.set(MsgType.HONGBAO_COUNT, count);
+//                                                message.set(MsgType.HONGBAO_RANDOM, isRandom);
+                                                message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                ChatRoom room = rooms.get(roomName);
+                                                room.addHongbao(hongbaoId);
+                                                for (String user : rooms.get(roomName).getUsers()) {
+                                                    //if (!user.equals(username)) {
+                                                    // 发送给其他人
+                                                    SocketChannel socketChannel = users.get(user).getSocketChannel();
+                                                    sendRawMessage(socketChannel, message);
+                                                    //}
+                                                }
+                                            } else {
+                                                message.set(MsgType.USER_NAME, username);
+                                                message.set(MsgType.ROOM_NAME, roomName);
+                                                message.set(MsgType.RESPONSE_STATUS, "发送失败");
+                                                sendRawMessage(sc, message);
+                                            }
                                             break;
                                         }
                                         default:

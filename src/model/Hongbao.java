@@ -1,20 +1,29 @@
 package model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
-    private String hongbaoId;
-    private boolean isRandom = false;
+    //private String hongbaoId;
+    static AtomicInteger id = new AtomicInteger(0);
+    private boolean isRandom = false;   // "0" false   other: true
     private AtomicInteger leftMoney;
     private int totalMoney;
     private int count;
-    private Map<String, Integer> hbUsrMap = new HashMap<>();
+    private Map<String, Integer> hbUsrMap = Collections.synchronizedMap(new HashMap<>());
+    private String roomName;
+
+
+    public Hongbao() {
+        //hongbaoId = Integer.toString(id.incrementAndGet());
+        id.incrementAndGet();
+    }
 
     public void getInfoOrMax(){
-        Iterator<Map.Entry<String, Integer>> iter = hbUsrMap.entrySet().iterator();
+        Iterator<Map.Entry<String, Integer>> iter = Collections.unmodifiableMap(hbUsrMap).entrySet().iterator();
         Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
         //Map.Entry<String, Float> entryMax = null;
@@ -35,12 +44,16 @@ public class Hongbao {
         }
     }
 
-    public String getHongbaoId() {
-        return hongbaoId;
-    }
+//    public String getHongbaoId() {
+//        return hongbaoId;
+//    }
+//
+//    public void setHongbaoId(String hongbaoId) {
+//        this.hongbaoId = hongbaoId;
+//    }
 
-    public void setHongbaoId(String hongbaoId) {
-        this.hongbaoId = hongbaoId;
+    public String getId() {
+        return Integer.toString(id.get());
     }
 
     public boolean isRandom() {
@@ -73,5 +86,13 @@ public class Hongbao {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 }

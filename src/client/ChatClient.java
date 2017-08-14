@@ -1,8 +1,8 @@
 package client;
 
 import model.Commands;
-import model.FieldType;
 import model.Message;
+import model.MsgType;
 import utils.SerializeHelper;
 import utils.StringHelper;
 
@@ -66,9 +66,9 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.CREATE_CHAT_ROOM);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomName);
-        message.set(FieldType.ROOM_INFO, roomInfo);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.ROOM_NAME, roomName);
+        message.set(MsgType.ROOM_INFO, roomInfo);
         sendRawMessage(message);
     }
 
@@ -76,8 +76,8 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.ENTER_CHAT_ROOM);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomName);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.ROOM_NAME, roomName);
         sendRawMessage(message);
     }
 
@@ -85,8 +85,8 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomName);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.ROOM_NAME, roomName);
         sendRawMessage(message);
     }
 
@@ -94,8 +94,8 @@ public final class ChatClient {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
         Message message = new Message(Commands.EXIT_CHAT_ROOM);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomName);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.ROOM_NAME, roomName);
         sendRawMessage(message);
     }
 
@@ -103,7 +103,7 @@ public final class ChatClient {
         if (!isLogin)
             return;
         Message message = new Message(Commands.EXIT_CUR_CHAT_ROOM);
-        message.set(FieldType.USER_NAME, username);
+        message.set(MsgType.USER_NAME, username);
         sendRawMessage(message);
     }
 
@@ -128,8 +128,8 @@ public final class ChatClient {
         }
         this.username = username;
         Message message = new Message(Commands.LOG_IN);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.PASS_WD, passwd);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.PASS_WD, passwd);
         sendRawMessage(message);
     }
 
@@ -137,64 +137,64 @@ public final class ChatClient {
         if (!isLogin)
             return;
         Message message = new Message(Commands.LOG_OUT);
-        message.set(FieldType.USER_NAME, username);
+        message.set(MsgType.USER_NAME, username);
         sendRawMessage(message);
     }
 
     public void sendMsgToRoom(String roomName, String msg) {
         Message message = new Message(Commands.MSG_P2R);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.ROOM_NAME, roomName);
-        message.set(FieldType.MSG_TXT, msg);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.ROOM_NAME, roomName);
+        message.set(MsgType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
     public void sendMsgToRoom(String msg) {
         Message message = new Message(Commands.MSG_CUR_P2R);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.MSG_TXT, msg);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
     public void sendMsgToUser(String toName, String msg) {
         Message message = new Message(Commands.MSG_P2P);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.SINGLE_NAME, toName);
-        message.set(FieldType.MSG_TXT, msg);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.SINGLE_NAME, toName);
+        message.set(MsgType.MSG_TXT, msg);
         sendRawMessage(message);
     }
 
     public void queryUserList() {
         Message message = new Message(Commands.QUERY_USERS);
-        message.set(FieldType.USER_NAME, username);
+        message.set(MsgType.USER_NAME, username);
         sendRawMessage(message);
     }
 
     public void queryAllRoomList() {
         Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
-        message.set(FieldType.USER_NAME, username);
+        message.set(MsgType.USER_NAME, username);
         sendRawMessage(message);
     }
 
     public void queryMyRoomList() {
         Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
-        message.set(FieldType.USER_NAME, username);
+        message.set(MsgType.USER_NAME, username);
         sendRawMessage(message);
     }
 
     public void sendHongbao(String totalMoney, String count, String isRandom){
         Message message = new Message(Commands.SEND_HONGBAO);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.HONGBAO_TOTAL, totalMoney);
-        message.set(FieldType.HONGBAO_COUNT, count);
-        message.set(FieldType.HONGBAO_RANDOM, isRandom);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.HONGBAO_TOTAL, totalMoney);
+        message.set(MsgType.HONGBAO_COUNT, count);
+        message.set(MsgType.HONGBAO_RANDOM, isRandom);
         sendRawMessage(message);
     }
 
     public void qiangHongbao(String hongbaoId){
         Message message = new Message(Commands.QIANG_HONGBAO);
-        message.set(FieldType.USER_NAME, username);
-        message.set(FieldType.HONGBAO_ID, hongbaoId);
+        message.set(MsgType.USER_NAME, username);
+        message.set(MsgType.HONGBAO_ID, hongbaoId);
         sendRawMessage(message);
     }
 
@@ -245,7 +245,7 @@ public final class ChatClient {
                                 if (msg != null) {
                                     switch (msg.getCommand()) {
                                         case LOG_IN: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("恭喜你登录成功！");
                                                 isLogin = true;
@@ -261,11 +261,11 @@ public final class ChatClient {
                                             break;
                                         }
                                         case MSG_P2P: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromName = msg.get(FieldType.USER_NAME);
-                                            String toName = msg.get(FieldType.SINGLE_NAME);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
+                                            String fromName = msg.get(MsgType.USER_NAME);
+                                            String toName = msg.get(MsgType.SINGLE_NAME);
                                             if (result.equals("成功")) {
-                                                String txt = msg.get(FieldType.MSG_TXT);
+                                                String txt = msg.get(MsgType.MSG_TXT);
                                                 System.out.println("@" + fromName + " 对你说：" + txt);
                                             } else {
                                                 System.out.println("发送给 @" + toName + " 的消息发送失败：" + result);
@@ -273,11 +273,11 @@ public final class ChatClient {
                                             break;
                                         }
                                         case MSG_P2R: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromName = msg.get(FieldType.USER_NAME);
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
+                                            String fromName = msg.get(MsgType.USER_NAME);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
                                             if (result.equals("成功")) {
-                                                String txt = msg.get(FieldType.MSG_TXT);
+                                                String txt = msg.get(MsgType.MSG_TXT);
                                                 System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
                                             } else {
                                                 System.out.println("发送到" + roomName + "消息发送失败：" + result);
@@ -285,23 +285,24 @@ public final class ChatClient {
                                             break;
                                         }
                                         case SEND_HONGBAO:{
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromName = msg.get(FieldType.USER_NAME);
-                                            String roomName = msg.get(FieldType.ROOM_NAME);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
+                                            String fromName = msg.get(MsgType.USER_NAME);
+                                            String roomName = msg.get(MsgType.ROOM_NAME);
+                                            String hongbaoId = msg.get(MsgType.HONGBAO_ID);
                                             if (result.equals("成功")) {
-                                                //String txt = msg.get(FieldType.MSG_TXT);
-                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 发了红包");
+                                                //String txt = msg.get(MsgType.MSG_TXT);
+                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 发了红包" + hongbaoId);
                                             } else {
                                                 System.out.println("发送到" + roomName + "红包发送失败：" + result);
                                             }
                                             break;
                                         }
                                         case QIANG_HONGBAO:{
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
-                                            String fromName = msg.get(FieldType.USER_NAME);
-                                            String toName = msg.get(FieldType.SINGLE_NAME);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
+                                            String fromName = msg.get(MsgType.USER_NAME);
+                                            String toName = msg.get(MsgType.SINGLE_NAME);
                                             if (result.equals("成功")) {
-                                                String txt = msg.get(FieldType.MSG_TXT);
+                                                String txt = msg.get(MsgType.MSG_TXT);
                                                 System.out.println("@" + fromName + " 抢了 @" + toName + " 的红包，金额为：" + txt);
                                             } else {
                                                 System.out.println("@" + toName + " 抢红包失败：" + result);
@@ -309,7 +310,7 @@ public final class ChatClient {
                                             break;
                                         }
                                         case CREATE_CHAT_ROOM: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("创建聊天室成功");
                                                 //status = ClientStatus.HALL.getValue();
@@ -321,7 +322,7 @@ public final class ChatClient {
                                             break;
                                         }
                                         case ENTER_CHAT_ROOM: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("加入聊天室成功");
                                                 //status = ClientStatus.ROOM.getValue();
@@ -334,7 +335,7 @@ public final class ChatClient {
                                             break;
                                         }
                                         case EXIT_CHAT_ROOM: {
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("离开聊天室成功");
                                             } else {
@@ -344,7 +345,7 @@ public final class ChatClient {
                                         }
 
                                         case QUERY_ALL_CHAT_ROOMS: {
-                                            String roomList = msg.get(FieldType.ROOM_LIST_ALL);
+                                            String roomList = msg.get(MsgType.ROOM_LIST_ALL);
                                             if (roomList.length() > 0) {
                                                 System.out.println("聊天室列表为：" + roomList);
                                             } else {
@@ -353,8 +354,8 @@ public final class ChatClient {
                                             break;
                                         }
                                         case QUERY_ROOM_MEMBERS: {
-                                            String roomMembers = msg.get(FieldType.ROOM_MEMBERS);
-                                            String result = msg.get(FieldType.RESPONSE_STATUS);
+                                            String roomMembers = msg.get(MsgType.ROOM_MEMBERS);
+                                            String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (roomMembers.length() > 0) {
                                                 System.out.println("聊天室成员列表为：" + roomMembers);
                                             } else {
@@ -363,7 +364,7 @@ public final class ChatClient {
                                             break;
                                         }
                                         case QUERY_USERS: {
-                                            String userList = msg.get(FieldType.USER_LIST);
+                                            String userList = msg.get(MsgType.USER_LIST);
                                             //System.out.println(users);
                                             if (userList.length() > 0) {
                                                 //String[] userArray=userList.split(",");

@@ -1,25 +1,23 @@
 package model;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
     //private String hongbaoId;
     static AtomicInteger id = new AtomicInteger(0);
     private boolean isRandom = false;   // "0" false   other: true
-    private AtomicInteger leftMoney;
+    private int leftMoney;
     private int totalMoney;
     private int count;
     private Map<String, Integer> hbUsrMap = Collections.synchronizedMap(new HashMap<>());
     private String roomName;
+    private String sentUserName;
 
-
-    public Hongbao() {
+    public Hongbao(int totalMoney) {
         //hongbaoId = Integer.toString(id.incrementAndGet());
         id.incrementAndGet();
+        leftMoney = totalMoney;
     }
 
     public void getInfoOrMax(){
@@ -44,6 +42,32 @@ public class Hongbao {
         }
     }
 
+    public synchronized void qiang(String nameQiang) {
+        if (totalMoney < 1 || count < 1 || totalMoney < count)
+            return;
+        if (hbUsrMap.containsKey(nameQiang))
+            return;
+
+        int leftCount = count - hbUsrMap.size();
+        if (leftCount < 1) {
+            // 红包抢完
+            leftMoney = 0;
+        } else if (leftCount == 1) {
+            // 只剩一个红包
+            hbUsrMap.put(nameQiang, leftMoney);
+            leftMoney = 0;
+        } else {
+            int getMoney = isRandom ? (new Random().nextInt(leftMoney - leftCount + 1) + 1) : getAverageMoney();
+            leftMoney -= getMoney;
+            hbUsrMap.put(nameQiang, getMoney);
+        }
+
+    }
+
+    public int getAverageMoney() {
+        return totalMoney / count;
+    }
+
 //    public String getHongbaoId() {
 //        return hongbaoId;
 //    }
@@ -64,11 +88,11 @@ public class Hongbao {
         isRandom = random;
     }
 
-    public AtomicInteger getLeftMoney() {
+    public int getLeftMoney() {
         return leftMoney;
     }
 
-    public void setLeftMoney(AtomicInteger leftMoney) {
+    public void setLeftMoney(int leftMoney) {
         this.leftMoney = leftMoney;
     }
 
@@ -95,4 +119,17 @@ public class Hongbao {
     public void setRoomName(String roomName) {
         this.roomName = roomName;
     }
+
+    public Map<String, Integer> getHbUsrMap() {
+        return hbUsrMap;
+    }
+
+    public String getSentUserName() {
+        return sentUserName;
+    }
+
+    public void setSentUserName(String sentUserName) {
+        this.sentUserName = sentUserName;
+    }
+
 }

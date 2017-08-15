@@ -3,6 +3,8 @@ package client;
 import utils.StringHelper;
 
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClientMain {
 
@@ -29,9 +31,11 @@ public class ClientMain {
                 String username = scanner.nextLine();
                 System.out.print("密码:");
                 String passwd = scanner.nextLine();
+                username = username.replaceAll("\\s+", "");
+                passwd = passwd.replaceAll("\\s+", "");
                 client.username = username;
                 client.login(client.username, passwd);
-                System.out.println("正在登录中...");
+                System.out.println(client.username + " 正在登录中...");
             } else {
                 System.out.println("当前用户:"+ client.username);
             }
@@ -69,24 +73,30 @@ public class ClientMain {
                     client.exitChatRoom();
                     System.out.println("正在退出聊天室");
                 }else if(input.startsWith("$hongbao ")){
-                    String[] contents = input.split("\\s+");
-                    if(contents.length == 3){
-                        // 普通
-                        String totalMoney = contents[1];
-                        String count = contents[2];
-                        client.sendHongbao(totalMoney, count, "0");
-                        System.out.println("正在发红包...");
-                    }else if(contents.length == 4){
-                        // 手气
-                        String totalMoney = contents[1];
-                        String count = contents[2];
-                        client.sendHongbao(totalMoney, count, "1");
-                        System.out.println("正在发拼手气红包...");
+                    String regEx = "\\$hongbao\\s+(\\d+)\\s*,\\s*(\\d+)\\s*(,\\s*(.+)\\s*)?$";
+                    Pattern pat = Pattern.compile(regEx);
+                    Matcher mat = pat.matcher(input);
+                    if (mat.find()) {
+                        //System.out.println(mat.group(1)+ "!" + mat.group(2) +"!" + mat.group(3) +"!" + mat.group(4));
+                        String totalMoney = mat.group(1);
+                        String count = mat.group(2);
+                        //System.out.println("[" + totalMoney+ "!" + count + "!" + mat.group(4) + "]" );
+                        if (mat.group(4) == null) {
+                            // 普通
+                            client.sendHongbao(totalMoney, count, "0");
+                            System.out.println("正在发红包...");
+                        } else {
+                            // 手气
+                            client.sendHongbao(totalMoney, count, "1");
+                            System.out.println("正在发拼手气红包...");
+                        }
                     }
                 }else if(input.startsWith("$qiang ")){
-                    String[] contents = input.split("\\s+");
-                    if(contents.length == 2){
-                        String hbId = contents[1];
+                    String regEx = "\\$qiang\\s+(\\d+)\\s*$";
+                    Pattern pat = Pattern.compile(regEx);
+                    Matcher mat = pat.matcher(input);
+                    if (mat.find()) {
+                        String hbId = mat.group(1);
                         client.qiangHongbao(hbId);
                         System.out.println("正在抢红包...");
                     }

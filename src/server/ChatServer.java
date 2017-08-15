@@ -376,15 +376,8 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.SEND_HONGBAO);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)) {
-
-                                                int iTotalMoney, iCount;
-                                                try {
-                                                    iTotalMoney = Integer.valueOf(totalMoney);
-                                                    iCount = Integer.valueOf(count);
-
-                                                } catch (Exception e) {
-                                                    break;
-                                                }
+                                                int iTotalMoney = Integer.valueOf(totalMoney);
+                                                int iCount = Integer.valueOf(count);
 
                                                 if (iTotalMoney < 1 || iCount < 1 || iTotalMoney < iCount) {
                                                     message.set(MsgType.USER_NAME, username);
@@ -445,20 +438,26 @@ public final class ChatServer implements Runnable {
 
                                                 if (hongbao.getHbUsrMap().containsKey(username)) {
                                                     message.set(MsgType.RESPONSE_STATUS, "您已抢过该红包");
+                                                    sendRawMessage(sc, message);
                                                 } else if (hongbao.getLeftMoney() <= 0 || hongbao.getCount() == hongbao.getHbUsrMap().size()) {
                                                     message.set(MsgType.RESPONSE_STATUS, "该红包被抢完了");
+                                                    sendRawMessage(sc, message);
                                                 } else {
                                                     hongbao.qiang(username);
                                                     message.set(MsgType.SINGLE_NAME, nameSentHb);
                                                     message.set(MsgType.MSG_TXT, hongbao.getHbUsrMap().get(username).toString());
                                                     message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                    for (String user : rooms.get(roomName).getUsers()) {
+                                                        SocketChannel socketChannel = users.get(user).getSocketChannel();
+                                                        sendRawMessage(socketChannel, message);
+                                                    }
                                                 }
 
                                             } else {
-
                                                 message.set(MsgType.RESPONSE_STATUS, "抢红包失败");
+                                                sendRawMessage(sc, message);
                                             }
-                                            sendRawMessage(sc, message);
+
                                             break;
                                         }
                                         default:

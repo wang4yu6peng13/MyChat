@@ -69,7 +69,7 @@ public final class ChatClient {
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.set(MsgType.ROOM_INFO, roomInfo);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void enterChatRoom(String roomName) {
@@ -78,7 +78,7 @@ public final class ChatClient {
         Message message = new Message(Commands.ENTER_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void queryChatRoomMembers(String roomName) {
@@ -87,7 +87,7 @@ public final class ChatClient {
         Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void exitChatRoom(String roomName) {
@@ -96,7 +96,7 @@ public final class ChatClient {
         Message message = new Message(Commands.EXIT_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void exitChatRoom() {
@@ -104,23 +104,21 @@ public final class ChatClient {
             return;
         Message message = new Message(Commands.EXIT_CUR_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     /**
      * 最底层的接口，给其他接口调用，用于发送最终的字节流
-     *
-     * @param message
      */
-    private void sendRawMessage(Message message) {
-        if (socketChannel != null && message != null) {
-            try {
-                socketChannel.write(message.wrap());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private void sendRawMessage(Message message) {
+//        if (socketChannel != null && message != null) {
+//            try {
+//                socketChannel.write(message.wrap());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public void login(String username, String passwd) {
         if (StringHelper.isNullOrTrimEmpty(username) || StringHelper.isNullOrTrimEmpty(passwd)) {
@@ -130,7 +128,7 @@ public final class ChatClient {
         Message message = new Message(Commands.LOG_IN);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.PASS_WD, passwd);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void logout() throws IOException {
@@ -138,7 +136,7 @@ public final class ChatClient {
             return;
         Message message = new Message(Commands.LOG_OUT);
         message.set(MsgType.USER_NAME, username);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void sendMsgToRoom(String roomName, String msg) {
@@ -146,14 +144,14 @@ public final class ChatClient {
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.set(MsgType.MSG_TXT, msg);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void sendMsgToRoom(String msg) {
         Message message = new Message(Commands.MSG_CUR_P2R);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.MSG_TXT, msg);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void sendMsgToUser(String toName, String msg) {
@@ -161,25 +159,25 @@ public final class ChatClient {
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.SINGLE_NAME, toName);
         message.set(MsgType.MSG_TXT, msg);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void queryUserList() {
         Message message = new Message(Commands.QUERY_USERS);
         message.set(MsgType.USER_NAME, username);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void queryAllRoomList() {
         Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
         message.set(MsgType.USER_NAME, username);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void queryMyRoomList() {
         Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
         message.set(MsgType.USER_NAME, username);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void sendHongbao(String totalMoney, String count, String isRandom){
@@ -188,14 +186,14 @@ public final class ChatClient {
         message.set(MsgType.HONGBAO_TOTAL, totalMoney);
         message.set(MsgType.HONGBAO_COUNT, count);
         message.set(MsgType.HONGBAO_RANDOM, isRandom);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     public void qiangHongbao(String hongbaoId){
         Message message = new Message(Commands.QIANG_HONGBAO);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.HONGBAO_ID, hongbaoId);
-        sendRawMessage(message);
+        message.sendRawMessage(socketChannel, message);
     }
 
     /**
@@ -303,7 +301,10 @@ public final class ChatClient {
                                             if (result.equals("成功")) {
                                                 String nameSentHb = msg.get(MsgType.SINGLE_NAME);
                                                 String txt = msg.get(MsgType.MSG_TXT);
+                                                String list = msg.get(MsgType.HONGBAO_LIST);
                                                 System.out.println("@" + nameQiang + " 抢了 @" + nameSentHb + " 的红包，金额为：" + txt);
+                                                if (list != null)
+                                                    System.out.print(list);
                                             } else {
                                                 System.out.println("@" + nameQiang + " 抢红包失败：" + result);
                                             }

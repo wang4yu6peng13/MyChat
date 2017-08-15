@@ -17,4 +17,5 @@ public enum MsgType {
     HONGBAO_TOTAL,
     HONGBAO_COUNT,
     HONGBAO_RANDOM,
+    HONGBAO_LIST,
 }

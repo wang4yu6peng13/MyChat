@@ -4,6 +4,7 @@ import utils.SerializeHelper;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,5 +38,15 @@ public class Message implements Serializable {
     public ByteBuffer wrap() {
         byte[] frame = toBytes();
         return ByteBuffer.wrap(frame);
+    }
+
+    public void sendRawMessage(SocketChannel sc, Message message) {
+        if (sc != null && message != null) {
+            try {
+                sc.write(message.wrap());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

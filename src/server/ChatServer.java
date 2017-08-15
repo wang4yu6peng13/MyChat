@@ -66,11 +66,11 @@ public final class ChatServer implements Runnable {
     /**
      * 最底层的接口，给其他接口调用
      */
-    private void sendRawMessage(SocketChannel sc, Message message) throws IOException {
-        if (sc != null && message != null) {
-            sc.write(message.wrap());
-        }
-    }
+//    private void sendRawMessage(SocketChannel sc, Message message) throws IOException {
+//        if (sc != null && message != null) {
+//            sc.write(message.wrap());
+//        }
+//    }
 
     public void run() {
         try {
@@ -125,7 +125,7 @@ public final class ChatServer implements Runnable {
                                                 message.set(MsgType.RESPONSE_STATUS, "该帐号已经登录");
                                             }
                                             //发送登录结果
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case LOG_OUT: {
@@ -138,7 +138,7 @@ public final class ChatServer implements Runnable {
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "该帐号已经退出");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case MSG_P2P: {
@@ -154,12 +154,12 @@ public final class ChatServer implements Runnable {
                                                 message.set(MsgType.SINGLE_NAME, toName);
                                                 message.set(MsgType.MSG_TXT, txt);
                                                 message.set(MsgType.RESPONSE_STATUS, "成功");
-                                                sendRawMessage(scPeer, message);
+                                                message.sendRawMessage(scPeer, message);
                                             } else {
                                                 message.set(MsgType.USER_NAME, username);
                                                 message.set(MsgType.SINGLE_NAME, toName);
                                                 message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
-                                                sendRawMessage(sc, message);
+                                                message.sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
@@ -179,14 +179,14 @@ public final class ChatServer implements Runnable {
                                                     if (!user.equals(username)) {
                                                         // 发送给其他人
                                                         SocketChannel socketChannel = users.get(user).getSocketChannel();
-                                                        sendRawMessage(socketChannel, message);
+                                                        message.sendRawMessage(socketChannel, message);
                                                     }
                                                 }
                                             } else {
                                                 message.set(MsgType.USER_NAME, username);
                                                 message.set(MsgType.ROOM_NAME, roomName);
                                                 message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
-                                                sendRawMessage(sc, message);
+                                                message.sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
@@ -208,14 +208,14 @@ public final class ChatServer implements Runnable {
                                                     if (!user.equals(username)) {
                                                         // 发送给其他人
                                                         SocketChannel socketChannel = users.get(user).getSocketChannel();
-                                                        sendRawMessage(socketChannel, message);
+                                                        message.sendRawMessage(socketChannel, message);
                                                     }
                                                 }
                                             } else {
                                                 message.set(MsgType.USER_NAME, username);
                                                 message.set(MsgType.ROOM_NAME, roomName);
                                                 message.set(MsgType.RESPONSE_STATUS, "消息发送失败");
-                                                sendRawMessage(sc, message);
+                                                message.sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
@@ -239,7 +239,7 @@ public final class ChatServer implements Runnable {
                                             } else {//返回错误消息
                                                 message.set(MsgType.RESPONSE_STATUS, "创建失败，聊天室名称不能为空");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case ENTER_CHAT_ROOM: {
@@ -266,7 +266,7 @@ public final class ChatServer implements Runnable {
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case EXIT_CHAT_ROOM: {
@@ -283,7 +283,7 @@ public final class ChatServer implements Runnable {
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case EXIT_CUR_CHAT_ROOM: {
@@ -300,7 +300,7 @@ public final class ChatServer implements Runnable {
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             break;
                                         }
                                         case QUERY_ALL_CHAT_ROOMS: {
@@ -313,7 +313,7 @@ public final class ChatServer implements Runnable {
                                                 String roomsStr = rooms.toString();
                                                 message.set(MsgType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             System.out.println("已发送聊天室列表给" + username);
                                             break;
                                         }
@@ -327,7 +327,7 @@ public final class ChatServer implements Runnable {
 //                                                String roomsStr = rooms.toString();
 //                                                message.set(MsgType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
 //                                            }
-//                                            sendRawMessage(sc, message);
+//                                            message.sendRawMessage(sc, message);
 //                                            System.out.println("已发送聊天室列表给" + username);
 //                                            break;
 //                                        }
@@ -347,7 +347,7 @@ public final class ChatServer implements Runnable {
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "不存在该聊天室");
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             System.out.println("已发送聊天室" + roomName + "成员列表给" + username);
                                             break;
                                         }
@@ -361,7 +361,7 @@ public final class ChatServer implements Runnable {
                                                 String usersStr = users.toString();
                                                 message.set(MsgType.USER_LIST, usersStr.substring(1, usersStr.length() - 1));
                                             }
-                                            sendRawMessage(sc, message);
+                                            message.sendRawMessage(sc, message);
                                             System.out.println("已发送用户列表给" + username);
                                             break;
                                         }
@@ -383,9 +383,9 @@ public final class ChatServer implements Runnable {
                                                     message.set(MsgType.USER_NAME, username);
                                                     message.set(MsgType.ROOM_NAME, roomName);
                                                     message.set(MsgType.RESPONSE_STATUS, "发送失败，金额不够个数");
-                                                    sendRawMessage(sc, message);
+                                                    message.sendRawMessage(sc, message);
                                                 } else {
-                                                    Hongbao hongbao = new Hongbao(iTotalMoney);
+                                                    Hongbao hongbao = new Hongbao(iTotalMoney, iCount);
                                                     String hongbaoId = hongbao.getId();
 
                                                     hongbao.setTotalMoney(Integer.valueOf(totalMoney));
@@ -408,7 +408,7 @@ public final class ChatServer implements Runnable {
                                                         //if (!user.equals(username)) {
                                                         // 发送给其他人
                                                         SocketChannel socketChannel = users.get(user).getSocketChannel();
-                                                        sendRawMessage(socketChannel, message);
+                                                        message.sendRawMessage(socketChannel, message);
                                                         //}
                                                     }
                                                 }
@@ -417,7 +417,7 @@ public final class ChatServer implements Runnable {
                                                 message.set(MsgType.USER_NAME, username);
                                                 message.set(MsgType.ROOM_NAME, roomName);
                                                 message.set(MsgType.RESPONSE_STATUS, "发送失败");
-                                                sendRawMessage(sc, message);
+                                                message.sendRawMessage(sc, message);
                                             }
                                             break;
                                         }
@@ -438,24 +438,31 @@ public final class ChatServer implements Runnable {
 
                                                 if (hongbao.getHbUsrMap().containsKey(username)) {
                                                     message.set(MsgType.RESPONSE_STATUS, "您已抢过该红包");
-                                                    sendRawMessage(sc, message);
+                                                    message.sendRawMessage(sc, message);
                                                 } else if (hongbao.getLeftMoney() <= 0 || hongbao.getCount() == hongbao.getHbUsrMap().size()) {
                                                     message.set(MsgType.RESPONSE_STATUS, "该红包被抢完了");
-                                                    sendRawMessage(sc, message);
+                                                    message.sendRawMessage(sc, message);
                                                 } else {
+                                                    boolean last = false;
+                                                    if (hongbao.getLeftCount() == 1) {
+                                                        last = true;
+                                                    }
                                                     hongbao.qiang(username);
                                                     message.set(MsgType.SINGLE_NAME, nameSentHb);
                                                     message.set(MsgType.MSG_TXT, hongbao.getHbUsrMap().get(username).toString());
                                                     message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                    if (last) {
+                                                        message.set(MsgType.HONGBAO_LIST, hongbao.getInfoOrMax());
+                                                    }
                                                     for (String user : rooms.get(roomName).getUsers()) {
                                                         SocketChannel socketChannel = users.get(user).getSocketChannel();
-                                                        sendRawMessage(socketChannel, message);
+                                                        message.sendRawMessage(socketChannel, message);
                                                     }
                                                 }
 
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "抢红包失败");
-                                                sendRawMessage(sc, message);
+                                                message.sendRawMessage(sc, message);
                                             }
 
                                             break;

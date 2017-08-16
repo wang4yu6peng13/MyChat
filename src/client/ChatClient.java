@@ -302,7 +302,8 @@ public final class ChatClient {
                                                 String nameSentHb = msg.get(MsgType.SINGLE_NAME);
                                                 String txt = msg.get(MsgType.MSG_TXT);
                                                 String list = msg.get(MsgType.HONGBAO_LIST);
-                                                System.out.println("@" + nameQiang + " 抢了 @" + nameSentHb + " 的红包，金额为：" + txt);
+                                                System.out.println("@" + nameQiang + " 抢了 @" + nameSentHb + " 的红包，金额为：￥"
+                                                        + StringHelper.moneyDivideBy100(Integer.valueOf(txt)));
                                                 if (list != null)
                                                     System.out.print(list);
                                             } else {

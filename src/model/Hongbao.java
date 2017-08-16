@@ -1,5 +1,7 @@
 package model;
 
+import utils.StringHelper;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,14 +28,14 @@ public class Hongbao {
         Iterator<Map.Entry<String, Integer>> iter = Collections.unmodifiableMap(hbUsrMap).entrySet().iterator();
         Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("↓↓↓↓↓↓↓↓抢红包情况↓↓↓↓↓↓↓↓\n");
         //Map.Entry<String, Float> entryMax = null;
         while(iter.hasNext()){
             Map.Entry<String, Integer> entry = iter.next();
             String username = entry.getKey();
             int money = entry.getValue();
             //System.out.println("@" + username + " 抢到红包 ￥" + money);
-            sb.append("@").append(username).append(" 抢到红包 ￥").append(money).append("\n");
+            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money)).append("\n");
             if(money > maxMoney){
                 maxMoney = money;
                 //entryMax = entry;
@@ -43,8 +45,9 @@ public class Hongbao {
         if(isRandom){
             // 拼手气
             //System.out.println("@" + maxUser + " 手气最佳，抢到红包 ￥" + maxMoney);
-            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(maxMoney).append("\n");
+            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(StringHelper.moneyDivideBy100(maxMoney)).append("\n");
         }
+        sb.append("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑\n");
         return sb.toString();
     }
 

@@ -73,15 +73,15 @@ public class ClientMain {
                     client.exitChatRoom();
                     System.out.println("正在退出聊天室");
                 }else if(input.startsWith("$hongbao ")){
-                    String regEx = "\\$hongbao\\s+(\\d+)\\s*,\\s*(\\d+)\\s*(,\\s*(.+)\\s*)?$";
+                    String regEx = "\\$hongbao\\s+(\\d+(\\.\\d{0,2})?)\\s*,\\s*(\\d+)\\s*(,\\s*(.+)\\s*)?$";
                     Pattern pat = Pattern.compile(regEx);
                     Matcher mat = pat.matcher(input);
                     if (mat.find()) {
                         //System.out.println(mat.group(1)+ "!" + mat.group(2) +"!" + mat.group(3) +"!" + mat.group(4));
-                        String totalMoney = mat.group(1);
-                        String count = mat.group(2);
+                        String totalMoney = StringHelper.moneyMulti100(mat.group(1));   //(\d+(\.\d{0,2})?)
+                        String count = mat.group(3);        //(\d+)
                         //System.out.println("[" + totalMoney+ "!" + count + "!" + mat.group(4) + "]" );
-                        if (mat.group(4) == null) {
+                        if (mat.group(5) == null) {         //(.+)
                             // 普通
                             client.sendHongbao(totalMoney, count, "0");
                             System.out.println("正在发红包...");

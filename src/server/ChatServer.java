@@ -25,6 +25,8 @@ public final class ChatServer implements Runnable {
     private int port;
     private String host;
 
+    private final static String USERS_FILE = "users.txt";
+
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
 
@@ -115,12 +117,30 @@ public final class ChatServer implements Runnable {
                                         case LOG_IN: {
                                             System.out.println("用户" + username + "请求登录...");
                                             Message message = new Message(Commands.LOG_IN);
-                                            //TODO:检查用户名密码，暂时没有注册功能，就只检测用户名是否重复
+                                            String passwd = message.get(MsgType.PASS_WD);
                                             if (!users.containsKey(username)) {
-                                                message.set(MsgType.RESPONSE_STATUS, "成功");
-                                                System.out.println("用户" + username + "登录成功");
-                                                User user = new User(username, sc);
-                                                users.put(username, user);
+                                                // 读文件
+                                                userFile = (Map<String, User>) SerializeHelper.readFromFile(USERS_FILE);
+                                                if (userFile != null && userFile.containsKey(username)) {
+                                                    if (userFile.get(username).getPassword().equals(passwd)) {
+                                                        message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                        System.out.println("用户" + username + "登录成功");
+                                                        User user = new User(username, passwd, sc);
+                                                        users.put(username, user);
+                                                    } else {
+                                                        message.set(MsgType.RESPONSE_STATUS, "密码错误");
+                                                    }
+
+                                                } else {
+                                                    // 注册
+                                                    message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                    System.out.println("用户" + username + "注册并登录成功");
+                                                    User user = new User(username, passwd, sc);
+                                                    users.put(username, user);
+                                                    userFile.put(username, user);
+                                                    SerializeHelper.writeToFile(USERS_FILE, userFile);
+                                                }
+
                                             } else {
                                                 message.set(MsgType.RESPONSE_STATUS, "该帐号已经登录");
                                             }

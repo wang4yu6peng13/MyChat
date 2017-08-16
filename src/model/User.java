@@ -11,15 +11,20 @@ public class User {
     private SocketChannel socketChannel;
     private Set<String> mJoinedRooms = Collections.synchronizedSet(new HashSet<String>());
 
-    public User(String username, SocketChannel socketChannel) throws IllegalArgumentException {
+    public User(String username, String password, SocketChannel socketChannel) throws IllegalArgumentException {
         if (username == null)
             throw new IllegalArgumentException("用户名不能为空");
         this.username = username;
+        this.password = password;
         this.socketChannel = socketChannel;
     }
 
     public String getUsername() {
         return this.username;
+    }
+
+    public String getPassword() {
+        return this.password;
     }
 
     public void joinRoom(String roomName) {

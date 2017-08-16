@@ -135,9 +135,6 @@ public class ClientMain {
                 }
 
 /*
-
-
-
                 int choose = -1;
                 String type = input.substring(0, 1);
                 switch (type) {

@@ -21,6 +21,10 @@ public final class ChatServer implements Runnable {
 
     //红包
     private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<String, Hongbao>());
+    //读取本地保存用户
+    private Map<String, String> userFile = Collections.synchronizedMap(new HashMap<>());
+    //读取本地保存聊天室
+
 
     private int port;
     private String host;
@@ -116,13 +120,13 @@ public final class ChatServer implements Runnable {
                                     switch (msg.getCommand()) {
                                         case LOG_IN: {
                                             System.out.println("用户" + username + "请求登录...");
+                                            String passwd = msg.get(MsgType.PASS_WD);
                                             Message message = new Message(Commands.LOG_IN);
-                                            String passwd = message.get(MsgType.PASS_WD);
                                             if (!users.containsKey(username)) {
                                                 // 读文件
-                                                userFile = (Map<String, User>) SerializeHelper.readFromFile(USERS_FILE);
+                                                userFile = ReadWriteInfo.readUserInfoFromFile(USERS_FILE);
                                                 if (userFile != null && userFile.containsKey(username)) {
-                                                    if (userFile.get(username).getPassword().equals(passwd)) {
+                                                    if (userFile.get(username).equals(passwd)) {
                                                         message.set(MsgType.RESPONSE_STATUS, "成功");
                                                         System.out.println("用户" + username + "登录成功");
                                                         User user = new User(username, passwd, sc);
@@ -137,8 +141,7 @@ public final class ChatServer implements Runnable {
                                                     System.out.println("用户" + username + "注册并登录成功");
                                                     User user = new User(username, passwd, sc);
                                                     users.put(username, user);
-                                                    userFile.put(username, user);
-                                                    SerializeHelper.writeToFile(USERS_FILE, userFile);
+                                                    ReadWriteInfo.writeUserInfoToFile(USERS_FILE, username, passwd);
                                                 }
 
                                             } else {

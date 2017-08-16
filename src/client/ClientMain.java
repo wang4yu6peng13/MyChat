@@ -22,6 +22,7 @@ public class ClientMain {
             System.out.println("$login \t\t\t\t\t-- 登录或注册");
             System.out.println("$logout \t\t\t\t-- 退出登录");
             System.out.println("$quit \t\t\t\t\t-- 退出客户端");
+            System.out.println("$rooms \t\t\t\t\t-- 聊天室列表");
             System.out.println("$create 房间名 房间简介 \t-- 创建房间");
             System.out.println("$enter 房间名 \t\t\t-- 进入聊天室");
             System.out.println("$xxx \t\t\t\t\t-- 在聊天室中直接发言");
@@ -92,6 +93,9 @@ public class ClientMain {
                     } else if (input.equals("$logout")) {
                         client.logout();
                         System.out.println("退出登录");
+                    } else if (input.equals("$rooms")) {
+                        client.queryAllRoomList();
+                        System.out.println("发送查询聊天室列表请求");
                     } else if (input.startsWith("$hongbao ")) {
                         String regEx = "\\$hongbao\\s+(\\d+(\\.\\d{0,2})?)\\s*,\\s*(\\d+)\\s*(,\\s*(.+)\\s*)?$";
                         Pattern pat = Pattern.compile(regEx);

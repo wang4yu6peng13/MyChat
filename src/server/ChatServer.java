@@ -15,7 +15,7 @@ public final class ChatServer implements Runnable {
     private Selector selector = null;//用于注册所有连接到服务器的SocketChannel对象
     //保存所有聊天室的Map
     private Map<String, ChatRoom> rooms = Collections.synchronizedMap(new HashMap<String, ChatRoom>());//聊天室
-    //保存所有用户的Map
+    //保存所有在线用户的Map
     private Map<String, User> users = Collections.synchronizedMap(new HashMap<String, User>());
     //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
 
@@ -24,12 +24,13 @@ public final class ChatServer implements Runnable {
     //读取本地保存用户
     private Map<String, String> userFile = Collections.synchronizedMap(new HashMap<>());
     //读取本地保存聊天室
-
+    private Map<String, String> roomFile = Collections.synchronizedMap(new HashMap<>());
 
     private int port;
     private String host;
 
     private final static String USERS_FILE = "users.txt";
+    private final static String ROOMS_FILE = "rooms.txt";
 
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
@@ -45,6 +46,19 @@ public final class ChatServer implements Runnable {
     public ChatServer(String host, int port) {
         this.host = host;
         this.port = port;
+        readRoom();
+    }
+
+    private void readRoom() {
+        roomFile = ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE);
+        Iterator<Map.Entry<String, String>> iter = roomFile.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, String> entry = iter.next();
+            String roomName = entry.getKey();
+            String roomInfo = entry.getValue();
+            ChatRoom room = new ChatRoom(roomName, roomInfo);
+            rooms.put(roomName, room);
+        }
     }
 
     /**
@@ -252,6 +266,7 @@ public final class ChatServer implements Runnable {
                                                     ChatRoom room = new ChatRoom(roomName, roomInfo);
                                                     //room.addUser(username);
                                                     rooms.put(roomName, room);
+                                                    ReadWriteInfo.writeRoomInfoToFile(ROOMS_FILE, roomName, roomInfo);
                                                     //User user = users.get(username);
                                                     //if (user != null)
                                                     //    user.joinRoom(roomName);
@@ -336,6 +351,17 @@ public final class ChatServer implements Runnable {
                                                 String roomsStr = rooms.toString();
                                                 message.set(MsgType.ROOM_LIST_ALL, roomsStr.substring(1, roomsStr.length() - 1));
                                             }
+
+//                                            roomFile = ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE);
+//                                            StringBuffer sb = new StringBuffer();
+//                                            Iterator<Map.Entry<String, String>> iter = roomFile.entrySet().iterator();
+//                                            while(iter.hasNext()){
+//                                                Map.Entry<String, String> entry = iter.next();
+//                                                String roomName = entry.getKey();
+//                                                String roomInfo = entry.getValue();
+//                                                sb.append("[").append(roomName).append(" ").append(roomInfo).append("]\n");
+//                                            }
+//                                            message.set(MsgType.ROOM_LIST_ALL, sb.toString());
                                             message.sendRawMessage(sc, message);
                                             System.out.println("已发送聊天室列表给" + username);
                                             break;

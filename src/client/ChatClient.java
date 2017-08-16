@@ -248,7 +248,7 @@ public final class ChatClient {
                                                 System.out.println("恭喜你登录成功！");
                                                 isLogin = true;
                                             } else {
-                                                System.out.print(result);
+                                                System.out.println(result);
                                             }
                                             break;
                                         }

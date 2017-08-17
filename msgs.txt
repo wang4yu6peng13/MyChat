@@ -1,0 +1,12 @@
+r2|s|e|g|[r2] @wyp ：hi
+r2|s|e|g|[r2] @test ：有人吗、
+r2|s|e|g|[r2] @wyp ： 你好
+room1|s|e|g|[room1] @test ：heiheihei
+r2|s|e|g|[r2] @wyp ： 哪去了
+room1|s|e|g|[room1] @test ：tets
+room1|s|e|g|[room1] @test ：\ntest\\ntestt
+room1|s|e|g|[room1] @wyp ：无语了(╬￣皿￣)
+room1|s|e|g|[room1] @test ：haha,息怒，︿(￣︶￣)︿
+room1|s|e|g|[room1] @test ：lalala
+room1|s|e|g|[room1] @wyp ：good days
+room1|s|e|g|[room1] @test ：hi

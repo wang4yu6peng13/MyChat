@@ -53,9 +53,7 @@ public final class ChatServer implements Runnable {
 
     private void readRoom() {
         roomFile = ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE);
-        Iterator<Map.Entry<String, String>> iter = roomFile.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<String, String> entry = iter.next();
+        for (Map.Entry<String, String> entry : Collections.unmodifiableMap(roomFile).entrySet()) {
             String roomName = entry.getKey();
             String roomInfo = entry.getValue();
             ChatRoom room = new ChatRoom(roomName, roomInfo);

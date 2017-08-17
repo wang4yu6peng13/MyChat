@@ -2,12 +2,15 @@ package model;
 
 import utils.StringHelper;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
     //private String hongbaoId;
-    static AtomicInteger id = new AtomicInteger(0);
+    private static AtomicInteger id = new AtomicInteger(0);
     private boolean isRandom = false;   // "0" false   other: true
     private int leftMoney;
     private int totalMoney;
@@ -25,13 +28,11 @@ public class Hongbao {
     }
 
     public String getInfoOrMax() {
-        Iterator<Map.Entry<String, Integer>> iter = Collections.unmodifiableMap(hbUsrMap).entrySet().iterator();
         Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
         StringBuilder sb = new StringBuilder("↓↓↓↓↓↓↓↓抢红包情况↓↓↓↓↓↓↓↓\n");
         //Map.Entry<String, Float> entryMax = null;
-        while(iter.hasNext()){
-            Map.Entry<String, Integer> entry = iter.next();
+        for (Map.Entry<String, Integer> entry : Collections.unmodifiableMap(hbUsrMap).entrySet()) {
             String username = entry.getKey();
             int money = entry.getValue();
             //System.out.println("@" + username + " 抢到红包 ￥" + money);
@@ -74,7 +75,7 @@ public class Hongbao {
         leftCount = updateLeftCount();
     }
 
-    public int getAverageMoney() {
+    private int getAverageMoney() {
         return totalMoney / count;
     }
 

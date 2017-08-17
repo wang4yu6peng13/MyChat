@@ -19,19 +19,12 @@ public class ClientMain {
 //            System.out.println("发送消息格式为——#用户ID:消息正文 或者 $聊天室ID:消息正文");
 
             System.out.println("命令:");
-            System.out.println("$login \t\t\t\t\t-- 登录或注册");
-            System.out.println("$logout \t\t\t\t-- 退出登录");
-            System.out.println("$quit \t\t\t\t\t-- 退出客户端");
-            System.out.println("$rooms \t\t\t\t\t-- 聊天室列表");
-            System.out.println("$create 房间名 房间简介 \t-- 创建房间");
-            System.out.println("$enter 房间名 \t\t\t-- 进入聊天室");
-            System.out.println("$xxx \t\t\t\t\t-- 在聊天室中直接发言");
-            System.out.println("$@昵称 xxx \t\t\t\t-- 对另一人密语");
-            System.out.println("$exit \t\t\t\t\t-- 退出房间，回到大厅");
-            System.out.println("$hongbao 金额,个数 \t\t-- 发红包");
-            System.out.println("$hongbao 金额,个数,拼手气 \t-- 发拼手气红包");
-            System.out.println("$qiang 红包编号 \t\t\t-- 抢红包");
-
+            System.out.println("$login 用户名 密码 \t\t-- 登录或注册 \t\t$xxx \t\t\t\t\t\t-- 在聊天室中直接发言");
+            System.out.println("$logout \t\t\t\t-- 退出登录 \t\t\t$@昵称 xxx \t\t\t\t\t-- 对另一人密语");
+            System.out.println("$quit \t\t\t\t\t-- 退出客户端 \t\t$exit \t\t\t\t\t\t-- 退出房间，回到大厅");
+            System.out.println("$rooms \t\t\t\t\t-- 聊天室列表 \t\t$hongbao 金额,个数 \t\t\t-- 发红包");
+            System.out.println("$create 房间名 房间简介 \t-- 创建房间 \t\t\t$hongbao 金额,个数,拼手气 \t-- 发拼手气红包");
+            System.out.println("$enter 房间名 \t\t\t-- 进入聊天室 \t\t$qiang 红包编号 \t\t\t\t-- 抢红包");
 
             boolean isExit = false;
             while (!isExit) {
@@ -45,22 +38,26 @@ public class ClientMain {
                 if (StringHelper.isNullOrTrimEmpty(input))
                     continue;
 
-                // create enter // xxx @ exit
                 input = input.trim();
-                if (input.equals("$login")) {
-                    // 登录
-                    if (!client.hasLogin()) {
-                        System.out.print("用户名:");
-                        String username = scanner.nextLine();
-                        System.out.print("密码:");
-                        String passwd = scanner.nextLine();
-                        username = username.replaceAll("\\s+", "");
-                        passwd = passwd.replaceAll("\\s+", "");
-                        client.username = username;
-                        client.login(client.username, passwd);
-                        System.out.println(client.username + " 正在登录中...");
-                    } else {
-                        System.out.println("当前用户:" + client.username);
+                if (input.startsWith("$login ")) {
+                    String[] contents = input.split("\\s+");
+                    if (contents.length == 3) {
+                        String username = contents[1];
+                        String passwd = contents[2];
+                        // 登录
+                        if (!client.hasLogin()) {
+//                        System.out.print("用户名:");
+//                        String username = scanner.nextLine();
+//                        System.out.print("密码:");
+//                        String passwd = scanner.nextLine();
+//                        username = username.replaceAll("\\s+", "");
+//                        passwd = passwd.replaceAll("\\s+", "");
+                            client.username = username;
+                            client.login(client.username, passwd);
+                            System.out.println(client.username + " 正在登录中...");
+                        } else {
+                            System.out.println("当前用户:" + client.username);
+                        }
                     }
                 } else if (input.equals("$quit")) {
                     isExit = true;

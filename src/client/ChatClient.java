@@ -276,7 +276,7 @@ public final class ChatClient {
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             if (result.equals("成功")) {
                                                 String txt = msg.get(MsgType.MSG_TXT);
-                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 说：" + txt);
+                                                System.out.println("[" + roomName + "] @" + fromName + " ：" + txt);
                                             } else {
                                                 System.out.println("发送到" + roomName + "消息发送失败：" + result);
                                             }
@@ -289,7 +289,7 @@ public final class ChatClient {
                                             String hongbaoId = msg.get(MsgType.HONGBAO_ID);
                                             if (result.equals("成功")) {
                                                 //String txt = msg.get(MsgType.MSG_TXT);
-                                                System.out.println("来自聊天室" + roomName + "的@" + fromName + " 发了红包" + hongbaoId);
+                                                System.out.println("[" + roomName + "] @" + fromName + " 发了红包" + hongbaoId);
                                             } else {
                                                 System.out.println("发送到" + roomName + "红包发送失败：" + result);
                                             }
@@ -327,10 +327,9 @@ public final class ChatClient {
                                             String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("加入聊天室成功");
-                                                //status = ClientStatus.ROOM.getValue();
-                                                //setStatus(1);
-                                                //System.out.println(" " + status);
-                                                //System.out.println(" " +getStatus());
+                                                String chatInfo = msg.get(MsgType.MSG_HISTORY);
+                                                if (chatInfo != null)
+                                                    System.out.println(chatInfo);
                                             } else {
                                                 System.out.println("加入聊天室失败:" + result);
                                             }

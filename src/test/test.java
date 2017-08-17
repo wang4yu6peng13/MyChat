@@ -1,15 +1,17 @@
 package test;
 
 import utils.FileHelper;
+import utils.ReadWriteInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class test {
 
     public static void main(String[] args) throws IOException {
-        String path = "test1.txt";
+        String path = "users.txt";
 //        FileHelper.saveAs("test0\ttset0\n",path,true);
 //        FileHelper.saveAs("test1\ttset1\n",path,true);
 //        FileHelper.saveAs("test2\ttset2\n",path,true);
@@ -21,5 +23,13 @@ public class test {
         ArrayList<String> res = FileHelper.readByLinesList(path);
         for (String s : res)
             System.out.println(s);
+        System.out.println("..");
+        Map<String, String> map = ReadWriteInfo.readUserInfoFromFile(path);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+
+        }
+        System.out.println("..");
     }
 }

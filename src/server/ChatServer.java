@@ -1,6 +1,7 @@
 package server;
 
 import model.*;
+import utils.ReadWriteInfo;
 import utils.SerializeHelper;
 import utils.StringHelper;
 
@@ -31,6 +32,7 @@ public final class ChatServer implements Runnable {
 
     private final static String USERS_FILE = "users.txt";
     private final static String ROOMS_FILE = "rooms.txt";
+    private final static String MSGS_FILE = "msgs.txt";
 
     private final static String LOCAL_HOST = "127.0.0.1";
     private final static int DEFAULT_PORT = 8909;
@@ -241,6 +243,9 @@ public final class ChatServer implements Runnable {
                                                 message.set(MsgType.ROOM_NAME, roomName);
                                                 message.set(MsgType.MSG_TXT, txt);
                                                 message.set(MsgType.RESPONSE_STATUS, "成功");
+                                                // 存聊天记录
+                                                ReadWriteInfo.writeMsgInfoToFile(MSGS_FILE, roomName,
+                                                        "[" + roomName + "] @" + username + " ：" + txt);
                                                 for (String user : rooms.get(roomName).getUsers()) {
                                                     if (!user.equals(username)) {
                                                         // 发送给其他人
@@ -293,6 +298,10 @@ public final class ChatServer implements Runnable {
                                                         room.addUser(username);
                                                         if (user != null)
                                                             user.joinRoom(roomName);
+                                                        // 读取聊天记录
+                                                        String chatInfo = ReadWriteInfo.readMsgInfoFromFile(MSGS_FILE, roomName);
+                                                        if (chatInfo != null)
+                                                            message.set(MsgType.MSG_HISTORY, chatInfo);
                                                         message.set(MsgType.RESPONSE_STATUS, "成功");
                                                     }else{
                                                         message.set(MsgType.RESPONSE_STATUS, "您已经在聊天室" + user.getJoinedRooms().toString());

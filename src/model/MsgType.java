@@ -11,6 +11,7 @@ public enum MsgType {
     ROOM_LIST_ME,//我的聊天室列表
     ROOM_MEMBERS,//用户列表
     MSG_TXT,
+    MSG_HISTORY,
     RESPONSE_STATUS,
     ENCODING,
     HONGBAO_ID,

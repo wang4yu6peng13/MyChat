@@ -393,10 +393,11 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
                                             if (rooms.containsKey(roomName)) {
                                                 Set<String> users = rooms.get(roomName).getUsers();
-                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 if (users.isEmpty()) {
+                                                    message.set(MsgType.RESPONSE_STATUS, "空无一人");
                                                     message.set(MsgType.ROOM_MEMBERS, "");
                                                 } else {
+                                                    message.set(MsgType.RESPONSE_STATUS, "成功");
                                                     String usersStr = users.toString();
                                                     message.set(MsgType.ROOM_MEMBERS, usersStr.substring(1, usersStr.length() - 1));
                                                 }

@@ -355,9 +355,9 @@ public final class ChatClient {
                                             break;
                                         }
                                         case QUERY_ROOM_MEMBERS: {
-                                            String roomMembers = msg.get(MsgType.ROOM_MEMBERS);
                                             String result = msg.get(MsgType.RESPONSE_STATUS);
-                                            if (roomMembers.length() > 0) {
+                                            String roomMembers = msg.get(MsgType.ROOM_MEMBERS);
+                                            if (result.equals("成功") && roomMembers.length() > 0) {
                                                 System.out.println("聊天室成员列表为：" + roomMembers);
                                             } else {
                                                 System.out.println("请求失败：" + result);

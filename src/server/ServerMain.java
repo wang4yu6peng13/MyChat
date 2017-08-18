@@ -11,7 +11,7 @@ public class ServerMain {
         serverThread.setDaemon(true);//后台进程
         serverThread.start();
         System.out.println("===输入选择项===");
-        System.out.println("1.获取用户列表；2.获取聊天室列表；3.获取指定聊天室成员；4.关闭服务器");
+        System.out.println("1.获取用户列表；2.获取聊天室列表；3.关闭服务器");
         boolean isExit = false;
         Scanner scanner = new Scanner(System.in);
         while (!isExit) {
@@ -39,9 +39,6 @@ public class ServerMain {
                     }
                     break;
                 case 3:
-
-                    break;
-                case 4:
                     try {
                         serverThread.interrupt();
                     } catch (Exception e) {

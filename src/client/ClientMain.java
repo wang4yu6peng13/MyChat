@@ -19,12 +19,12 @@ public class ClientMain {
 //            System.out.println("发送消息格式为——#用户ID:消息正文 或者 $聊天室ID:消息正文");
 
             System.out.println("命令:");
-            System.out.println("$login 用户名 密码 \t\t-- 登录或注册 \t\t$xxx \t\t\t\t\t\t-- 在聊天室中直接发言");
-            System.out.println("$logout \t\t\t\t-- 退出登录 \t\t\t$@昵称 xxx \t\t\t\t\t-- 对另一人密语");
-            System.out.println("$quit \t\t\t\t\t-- 退出客户端 \t\t$exit \t\t\t\t\t\t-- 退出房间，回到大厅");
-            System.out.println("$rooms \t\t\t\t\t-- 聊天室列表 \t\t$hongbao 金额,个数 \t\t\t-- 发红包");
-            System.out.println("$create 房间名 房间简介 \t-- 创建房间 \t\t\t$hongbao 金额,个数,拼手气 \t-- 发拼手气红包");
-            System.out.println("$enter 房间名 \t\t\t-- 进入聊天室 \t\t$qiang 红包编号 \t\t\t\t-- 抢红包");
+            System.out.println("$login 用户名 密码 \t\t-- 登录或注册 \t\t$rooms \t\t\t\t\t\t-- 聊天室列表");
+            System.out.println("$logout \t\t\t\t-- 退出登录 \t\t\t$users( 房间名)\t\t\t\t-- （聊天室里）在线用户列表");
+            System.out.println("$quit \t\t\t\t\t-- 退出客户端 \t\t$xxx \t\t\t\t\t\t-- 在聊天室中直接发言");
+            System.out.println("$create 房间名 房间简介 \t-- 创建房间 \t\t\t$@昵称 xxx \t\t\t\t\t-- 对另一人密语");
+            System.out.println("$enter 房间名 \t\t\t-- 进入聊天室 \t\t$hongbao 金额,个数(,拼手气) \t-- 发（拼手气）红包");
+            System.out.println("$exit \t\t\t\t\t-- 退出房间，回到大厅 \t$qiang 红包编号 \t\t\t\t-- 抢红包");
 
             boolean isExit = false;
             while (!isExit) {
@@ -93,6 +93,18 @@ public class ClientMain {
                     } else if (input.equals("$rooms")) {
                         client.queryAllRoomList();
                         System.out.println("发送查询聊天室列表请求");
+                    } else if(input.startsWith("$users")) {
+                        String[] contents = input.split("\\s+");
+                        if (contents.length == 1) {
+                            client.queryUserList();
+                            System.out.println("发送查询用户列表请求");
+                        }else if(contents.length == 2){
+                            String roomName = contents[1];
+                            if (!StringHelper.isNullOrTrimEmpty(roomName)) {
+                                client.queryChatRoomMembers(roomName);
+                                System.out.println("正在查询聊天室[" + roomName+ "]所有成员...");
+                            }
+                        }
                     } else if (input.startsWith("$hongbao ")) {
                         String regEx = "\\$hongbao\\s+(\\d+(\\.\\d{0,2})?)\\s*,\\s*(\\d+)\\s*(,\\s*(.+)\\s*)?$";
                         Pattern pat = Pattern.compile(regEx);

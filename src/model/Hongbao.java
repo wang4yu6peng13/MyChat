@@ -2,10 +2,7 @@ package model;
 
 import utils.StringHelper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
@@ -30,24 +27,39 @@ public class Hongbao {
     public String getInfoOrMax() {
         Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(Collections.unmodifiableMap(hbUsrMap).entrySet());
+        list.sort(new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
         StringBuilder sb = new StringBuilder("↓↓↓↓↓↓↓↓抢红包情况↓↓↓↓↓↓↓↓\n");
-        //Map.Entry<String, Float> entryMax = null;
-        for (Map.Entry<String, Integer> entry : Collections.unmodifiableMap(hbUsrMap).entrySet()) {
+        for (int i = 0; i < list.size(); ++i) {
+            Map.Entry<String, Integer> entry = list.get(i);
+            //System.out.println(e.getKey()+":"+e.getValue());
             String username = entry.getKey();
             int money = entry.getValue();
-            //System.out.println("@" + username + " 抢到红包 ￥" + money);
-            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money)).append("\n");
-            if(money > maxMoney){
-                maxMoney = money;
-                //entryMax = entry;
-                maxUser = username;
-            }
+            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money));
+            if(isRandom && i == 0)
+                sb.append(" 手气最佳");
+            sb.append("\n");
         }
-        if(isRandom){
-            // 拼手气
-            //System.out.println("@" + maxUser + " 手气最佳，抢到红包 ￥" + maxMoney);
-            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(StringHelper.moneyDivideBy100(maxMoney)).append("\n");
-        }
+
+//        for (Map.Entry<String, Integer> entry : Collections.unmodifiableMap(hbUsrMap).entrySet()) {
+//            String username = entry.getKey();
+//            int money = entry.getValue();
+//            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money)).append("\n");
+//            if(money > maxMoney){
+//                maxMoney = money;
+//                maxUser = username;
+//            }
+//        }
+//        if(isRandom){
+//            // 拼手气
+//            //System.out.println("@" + maxUser + " 手气最佳，抢到红包 ￥" + maxMoney);
+//            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(StringHelper.moneyDivideBy100(maxMoney)).append("\n");
+//        }
         sb.append("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑\n");
         return sb.toString();
     }

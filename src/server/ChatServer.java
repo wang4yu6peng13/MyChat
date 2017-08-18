@@ -21,7 +21,7 @@ public final class ChatServer implements Runnable {
     //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
 
     //红包
-    private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<String, Hongbao>());
+    private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<>());
     //读取本地保存用户
     private Map<String, String> userFile = Collections.synchronizedMap(new HashMap<>());
     //读取本地保存聊天室
@@ -52,7 +52,7 @@ public final class ChatServer implements Runnable {
     }
 
     private void readRoom() {
-        roomFile = ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE);
+        roomFile = Collections.synchronizedMap(ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE));
         for (Map.Entry<String, String> entry : Collections.unmodifiableMap(roomFile).entrySet()) {
             String roomName = entry.getKey();
             String roomInfo = entry.getValue();
@@ -138,7 +138,7 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Commands.LOG_IN);
                                             if (!users.containsKey(username)) {
                                                 // 读文件
-                                                userFile = ReadWriteInfo.readUserInfoFromFile(USERS_FILE);
+                                                userFile = Collections.synchronizedMap(ReadWriteInfo.readUserInfoFromFile(USERS_FILE));
                                                 if (userFile != null && userFile.containsKey(username)) {
                                                     if (userFile.get(username).equals(passwd)) {
                                                         message.set(MsgType.RESPONSE_STATUS, "成功");

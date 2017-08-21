@@ -17,7 +17,7 @@ public class ReadWriteInfo {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return map;
         }
         ArrayList<String> lines = FileHelper.readByLinesList(path);
         for (String line : lines) {
@@ -29,7 +29,7 @@ public class ReadWriteInfo {
     }
 
     public static void writeInfoToFile(String path, String first, String second) {
-        FileHelper.saveAs(first + "\t" + second + "\n", path, true);
+        FileHelper.saveAs(first + "\t" + second + "\n", path, true, "UTF-8");
     }
 
 
@@ -72,6 +72,6 @@ public class ReadWriteInfo {
     }
 
     public static void writeMsgInfoToFile(String path, String roomName, String msg) {
-        FileHelper.saveAs(roomName + "|s|e|g|" + msg + "\n", path, true);
+        FileHelper.saveAs(roomName + "|s|e|g|" + msg + "\n", path, true, "UTF-8");
     }
 }

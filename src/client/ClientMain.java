@@ -10,7 +10,7 @@ public class ClientMain {
 
     public static void main(String[] args) {
         ChatClient client = new ChatClient();
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in, "UTF-8");
         try {
             client.connect("127.0.0.1", 8909);
 

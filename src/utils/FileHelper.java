@@ -171,4 +171,27 @@ public class FileHelper {
         }
         return true;
     }
+
+
+    public static boolean saveAs(String content, String path, boolean append, String encode) {
+        // encode : "UTF-8"
+        OutputStreamWriter out = null;
+        try {
+            out = new OutputStreamWriter(new FileOutputStream(path, append), encode);
+            out.write(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (out != null) {
+                try {
+                    out.flush();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
 }

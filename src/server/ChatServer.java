@@ -51,7 +51,7 @@ public final class ChatServer implements Runnable {
     }
 
     private void readRoom() {
-        roomFile = Collections.synchronizedMap(ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE));
+        roomFile.putAll(ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE));
         for (Map.Entry<String, String> entry : Collections.unmodifiableMap(roomFile).entrySet()) {
             String roomName = entry.getKey();
             String roomInfo = entry.getValue();
@@ -128,7 +128,7 @@ public final class ChatServer implements Runnable {
                                             Message message = new Message(Command.LOG_IN);
                                             if (!users.containsKey(username)) {
                                                 // 读文件
-                                                userFile = Collections.synchronizedMap(ReadWriteInfo.readUserInfoFromFile(USERS_FILE));
+                                                userFile.putAll(ReadWriteInfo.readUserInfoFromFile(USERS_FILE));
                                                 if (userFile != null && userFile.containsKey(username)) {
                                                     if (userFile.get(username).equals(passwd)) {
                                                         message.set(MsgType.RESPONSE_STATUS, "成功");

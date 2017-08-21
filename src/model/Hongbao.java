@@ -99,14 +99,6 @@ public class Hongbao {
         return updateLeftCount();
     }
 
-//    public String getHongbaoId() {
-//        return hongbaoId;
-//    }
-//
-//    public void setHongbaoId(String hongbaoId) {
-//        this.hongbaoId = hongbaoId;
-//    }
-
     public String getId() {
         return Integer.toString(id.get());
     }

@@ -11,13 +11,13 @@ import java.util.Map;
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
     private Map<MsgType, String> fields = new HashMap<>();
-    private Commands command;
+    private Command command;
 
-    public Message(Commands command) {
+    public Message(Command command) {
         this.command = command;
     }
 
-    public Commands getCommand() {
+    public Command getCommand() {
         return this.command;
     }
 

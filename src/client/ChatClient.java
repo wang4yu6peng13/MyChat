@@ -1,6 +1,6 @@
 package client;
 
-import model.Commands;
+import model.Command;
 import model.Message;
 import model.MsgType;
 import utils.SerializeHelper;
@@ -23,14 +23,6 @@ public final class ChatClient {
     private boolean isLogin = false;
     public String username;
 
-//    public void setStatus(int status) {
-//        this.status = status;
-//    }
-//
-//    public int getStatus() {
-//        return status;
-//    }
-
     /**
      * 连接到指定主机和端口
      *
@@ -49,13 +41,6 @@ public final class ChatClient {
         Thread clientThread = new ClientThread();
         clientThread.setDaemon(true);
         clientThread.start();
-//		Scanner scanner=new Scanner(System.in);
-//		while(scanner.hasNextLine())
-//		{
-//			String line=scanner.nextLine();
-//			sc.write(charset.encode(line));//发送出去
-//		}
-//		scanner.close();
     }
 
     public boolean hasLogin() {
@@ -65,7 +50,7 @@ public final class ChatClient {
     public void createChatRoom(String roomName, String roomInfo) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
-        Message message = new Message(Commands.CREATE_CHAT_ROOM);
+        Message message = new Message(Command.CREATE_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.set(MsgType.ROOM_INFO, roomInfo);
@@ -75,7 +60,7 @@ public final class ChatClient {
     public void enterChatRoom(String roomName) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
-        Message message = new Message(Commands.ENTER_CHAT_ROOM);
+        Message message = new Message(Command.ENTER_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.sendRawMessage(socketChannel, message);
@@ -84,7 +69,7 @@ public final class ChatClient {
     public void queryChatRoomMembers(String roomName) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
-        Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
+        Message message = new Message(Command.QUERY_ROOM_MEMBERS);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.sendRawMessage(socketChannel, message);
@@ -93,7 +78,7 @@ public final class ChatClient {
     public void exitChatRoom(String roomName) {
         if (!isLogin || StringHelper.isNullOrTrimEmpty(roomName))
             return;
-        Message message = new Message(Commands.EXIT_CHAT_ROOM);
+        Message message = new Message(Command.EXIT_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.sendRawMessage(socketChannel, message);
@@ -102,30 +87,17 @@ public final class ChatClient {
     public void exitChatRoom() {
         if (!isLogin)
             return;
-        Message message = new Message(Commands.EXIT_CUR_CHAT_ROOM);
+        Message message = new Message(Command.EXIT_CUR_CHAT_ROOM);
         message.set(MsgType.USER_NAME, username);
         message.sendRawMessage(socketChannel, message);
     }
-
-    /**
-     * 最底层的接口，给其他接口调用，用于发送最终的字节流
-     */
-//    private void sendRawMessage(Message message) {
-//        if (socketChannel != null && message != null) {
-//            try {
-//                socketChannel.write(message.wrap());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
     public void login(String username, String passwd) {
         if (StringHelper.isNullOrTrimEmpty(username) || StringHelper.isNullOrTrimEmpty(passwd)) {
             throw new IllegalArgumentException("用户名或密码不能为空");
         }
         this.username = username;
-        Message message = new Message(Commands.LOG_IN);
+        Message message = new Message(Command.LOG_IN);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.PASS_WD, passwd);
         message.sendRawMessage(socketChannel, message);
@@ -134,13 +106,13 @@ public final class ChatClient {
     public void logout() throws IOException {
         if (!isLogin)
             return;
-        Message message = new Message(Commands.LOG_OUT);
+        Message message = new Message(Command.LOG_OUT);
         message.set(MsgType.USER_NAME, username);
         message.sendRawMessage(socketChannel, message);
     }
 
     public void sendMsgToRoom(String roomName, String msg) {
-        Message message = new Message(Commands.MSG_P2R);
+        Message message = new Message(Command.MSG_P2R);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.ROOM_NAME, roomName);
         message.set(MsgType.MSG_TXT, msg);
@@ -148,14 +120,14 @@ public final class ChatClient {
     }
 
     public void sendMsgToRoom(String msg) {
-        Message message = new Message(Commands.MSG_CUR_P2R);
+        Message message = new Message(Command.MSG_CUR_P2R);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.MSG_TXT, msg);
         message.sendRawMessage(socketChannel, message);
     }
 
     public void sendMsgToUser(String toName, String msg) {
-        Message message = new Message(Commands.MSG_P2P);
+        Message message = new Message(Command.MSG_P2P);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.SINGLE_NAME, toName);
         message.set(MsgType.MSG_TXT, msg);
@@ -163,25 +135,25 @@ public final class ChatClient {
     }
 
     public void queryUserList() {
-        Message message = new Message(Commands.QUERY_USERS);
+        Message message = new Message(Command.QUERY_USERS);
         message.set(MsgType.USER_NAME, username);
         message.sendRawMessage(socketChannel, message);
     }
 
     public void queryAllRoomList() {
-        Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
+        Message message = new Message(Command.QUERY_ALL_CHAT_ROOMS);
         message.set(MsgType.USER_NAME, username);
         message.sendRawMessage(socketChannel, message);
     }
 
     public void queryMyRoomList() {
-        Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
+        Message message = new Message(Command.QUERY_MY_CHAT_ROOMS);
         message.set(MsgType.USER_NAME, username);
         message.sendRawMessage(socketChannel, message);
     }
 
     public void sendHongbao(String totalMoney, String count, String isRandom){
-        Message message = new Message(Commands.SEND_HONGBAO);
+        Message message = new Message(Command.SEND_HONGBAO);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.HONGBAO_TOTAL, totalMoney);
         message.set(MsgType.HONGBAO_COUNT, count);
@@ -190,7 +162,7 @@ public final class ChatClient {
     }
 
     public void qiangHongbao(String hongbaoId){
-        Message message = new Message(Commands.QIANG_HONGBAO);
+        Message message = new Message(Command.QIANG_HONGBAO);
         message.set(MsgType.USER_NAME, username);
         message.set(MsgType.HONGBAO_ID, hongbaoId);
         message.sendRawMessage(socketChannel, message);
@@ -253,7 +225,7 @@ public final class ChatClient {
                                             break;
                                         }
                                         case LOG_OUT: {
-                                            //退出懒得检查了
+                                            //退出
                                             isLogin = false;
                                             System.out.println("退出成功！");
                                             break;
@@ -315,9 +287,6 @@ public final class ChatClient {
                                             String result = msg.get(MsgType.RESPONSE_STATUS);
                                             if (result.equals("成功")) {
                                                 System.out.println("创建聊天室成功");
-                                                //status = ClientStatus.HALL.getValue();
-                                                //queryAllRoomList();
-                                                //setStatus(0);
                                             } else {
                                                 System.out.println("创建聊天室失败:" + result);
                                             }

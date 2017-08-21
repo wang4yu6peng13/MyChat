@@ -46,9 +46,6 @@ public class User {
     public String getJoinedRoomName(){
         Set<String> set = getJoinedRooms();
         String roomName = null;
-//        for(Iterator it = set.iterator(); it.hasNext();){
-//            roomName = it.next().toString();
-//        }
         for(String s : set){
             roomName = s;
         }

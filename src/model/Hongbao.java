@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hongbao {
     //private String hongbaoId;
-    static AtomicInteger id = new AtomicInteger(0);
+    private static AtomicInteger id = new AtomicInteger(0);
     private boolean isRandom = false;   // "0" false   other: true
     private int leftMoney;
     private int totalMoney;
@@ -25,28 +25,41 @@ public class Hongbao {
     }
 
     public String getInfoOrMax() {
-        Iterator<Map.Entry<String, Integer>> iter = Collections.unmodifiableMap(hbUsrMap).entrySet().iterator();
         Integer maxMoney = Integer.MIN_VALUE;
         String maxUser = "";
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(Collections.unmodifiableMap(hbUsrMap).entrySet());
+        list.sort(new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
         StringBuilder sb = new StringBuilder("↓↓↓↓↓↓↓↓抢红包情况↓↓↓↓↓↓↓↓\n");
-        //Map.Entry<String, Float> entryMax = null;
-        while(iter.hasNext()){
-            Map.Entry<String, Integer> entry = iter.next();
+        for (int i = 0; i < list.size(); ++i) {
+            Map.Entry<String, Integer> entry = list.get(i);
+            //System.out.println(e.getKey()+":"+e.getValue());
             String username = entry.getKey();
             int money = entry.getValue();
-            //System.out.println("@" + username + " 抢到红包 ￥" + money);
-            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money)).append("\n");
-            if(money > maxMoney){
-                maxMoney = money;
-                //entryMax = entry;
-                maxUser = username;
-            }
+            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money));
+            if(isRandom && i == 0)
+                sb.append(" 手气最佳");
+            sb.append("\n");
         }
-        if(isRandom){
-            // 拼手气
-            //System.out.println("@" + maxUser + " 手气最佳，抢到红包 ￥" + maxMoney);
-            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(StringHelper.moneyDivideBy100(maxMoney)).append("\n");
-        }
+
+//        for (Map.Entry<String, Integer> entry : Collections.unmodifiableMap(hbUsrMap).entrySet()) {
+//            String username = entry.getKey();
+//            int money = entry.getValue();
+//            sb.append("@").append(username).append(" 抢到红包 ￥").append(StringHelper.moneyDivideBy100(money)).append("\n");
+//            if(money > maxMoney){
+//                maxMoney = money;
+//                maxUser = username;
+//            }
+//        }
+//        if(isRandom){
+//            // 拼手气
+//            //System.out.println("@" + maxUser + " 手气最佳，抢到红包 ￥" + maxMoney);
+//            sb.append("@").append(maxUser).append(" 手气最佳，抢到红包 ￥").append(StringHelper.moneyDivideBy100(maxMoney)).append("\n");
+//        }
         sb.append("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑\n");
         return sb.toString();
     }
@@ -65,7 +78,7 @@ public class Hongbao {
             // 只剩一个红包
             hbUsrMap.put(nameQiang, leftMoney);
             leftMoney = 0;
-            getInfoOrMax();
+            //getInfoOrMax();
         } else {
             int getMoney = isRandom ? (new Random().nextInt(leftMoney - leftCount + 1) + 1) : getAverageMoney();
             leftMoney -= getMoney;
@@ -74,7 +87,7 @@ public class Hongbao {
         leftCount = updateLeftCount();
     }
 
-    public int getAverageMoney() {
+    private int getAverageMoney() {
         return totalMoney / count;
     }
 
@@ -85,14 +98,6 @@ public class Hongbao {
     public int getLeftCount() {
         return updateLeftCount();
     }
-
-//    public String getHongbaoId() {
-//        return hongbaoId;
-//    }
-//
-//    public void setHongbaoId(String hongbaoId) {
-//        this.hongbaoId = hongbaoId;
-//    }
 
     public String getId() {
         return Integer.toString(id.get());

@@ -78,16 +78,13 @@ public class FileHelper {
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "utf-8"));
 
-
             String temp;
             while ((temp = bufferedReader.readLine()) != null) {
                 list.add(temp);
             }
 
             bufferedReader.close();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

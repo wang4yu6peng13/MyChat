@@ -1,6 +1,6 @@
 package model;
 
-public enum Commands {
+public enum Command {
     LOG_IN,
     LOG_OUT,
     QUERY_USERS,

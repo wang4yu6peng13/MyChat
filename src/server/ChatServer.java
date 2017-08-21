@@ -18,10 +18,9 @@ public final class ChatServer implements Runnable {
     private Map<String, ChatRoom> rooms = Collections.synchronizedMap(new HashMap<String, ChatRoom>());//聊天室
     //保存所有在线用户的Map
     private Map<String, User> users = Collections.synchronizedMap(new HashMap<String, User>());
-    //private Bind<String, SocketChannel> usersocketBindMap=Collections.synchronizedMap(new BindMap<String, SocketChannel>());
 
     //红包
-    private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<String, Hongbao>());
+    private Map<String, Hongbao> hongbaos = Collections.synchronizedMap(new HashMap<>());
     //读取本地保存用户
     private Map<String, String> userFile = Collections.synchronizedMap(new HashMap<>());
     //读取本地保存聊天室
@@ -52,10 +51,8 @@ public final class ChatServer implements Runnable {
     }
 
     private void readRoom() {
-        roomFile = ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE);
-        Iterator<Map.Entry<String, String>> iter = roomFile.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<String, String> entry = iter.next();
+        roomFile = Collections.synchronizedMap(ReadWriteInfo.readRoomInfoFromFile(ROOMS_FILE));
+        for (Map.Entry<String, String> entry : Collections.unmodifiableMap(roomFile).entrySet()) {
             String roomName = entry.getKey();
             String roomInfo = entry.getValue();
             ChatRoom room = new ChatRoom(roomName, roomInfo);
@@ -85,15 +82,6 @@ public final class ChatServer implements Runnable {
         return null;
     }
 
-    /**
-     * 最底层的接口，给其他接口调用
-     */
-//    private void sendRawMessage(SocketChannel sc, Message message) throws IOException {
-//        if (sc != null && message != null) {
-//            sc.write(message.wrap());
-//        }
-//    }
-
     public void run() {
         try {
             selector = Selector.open();
@@ -121,7 +109,7 @@ public final class ChatServer implements Runnable {
                         ByteArrayOutputStream boStream = new ByteArrayOutputStream();
                         try {
                             int len;
-                            while ((len = sc.read(buffer)) > 0) {//TODO:性能问题
+                            while ((len = sc.read(buffer)) > 0) {
                                 //System.out.println("长度:"+len);
                                 buffer.flip();
                                 boStream.write(Arrays.copyOfRange(buffer.array(), 0, buffer.limit()));
@@ -137,10 +125,10 @@ public final class ChatServer implements Runnable {
                                         case LOG_IN: {
                                             System.out.println("用户" + username + "请求登录...");
                                             String passwd = msg.get(MsgType.PASS_WD);
-                                            Message message = new Message(Commands.LOG_IN);
+                                            Message message = new Message(Command.LOG_IN);
                                             if (!users.containsKey(username)) {
                                                 // 读文件
-                                                userFile = ReadWriteInfo.readUserInfoFromFile(USERS_FILE);
+                                                userFile = Collections.synchronizedMap(ReadWriteInfo.readUserInfoFromFile(USERS_FILE));
                                                 if (userFile != null && userFile.containsKey(username)) {
                                                     if (userFile.get(username).equals(passwd)) {
                                                         message.set(MsgType.RESPONSE_STATUS, "成功");
@@ -169,7 +157,7 @@ public final class ChatServer implements Runnable {
                                         }
                                         case LOG_OUT: {
                                             System.out.println("用户" + username + "请求退出...");
-                                            Message message = new Message(Commands.LOG_OUT);
+                                            Message message = new Message(Command.LOG_OUT);
                                             if (users.containsKey(username)) {
                                                 message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 users.remove(username);
@@ -184,7 +172,7 @@ public final class ChatServer implements Runnable {
                                             String toName = msg.get(MsgType.SINGLE_NAME);
                                             String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息给用户" + toName);
-                                            Message message = new Message(Commands.MSG_P2P);
+                                            Message message = new Message(Command.MSG_P2P);
                                             if (users.containsKey(username)
                                                     && users.containsKey(toName)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
@@ -206,7 +194,7 @@ public final class ChatServer implements Runnable {
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息到聊天室" + roomName);
-                                            Message message = new Message(Commands.MSG_P2R);
+                                            Message message = new Message(Command.MSG_P2R);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
@@ -235,7 +223,7 @@ public final class ChatServer implements Runnable {
 
                                             String txt = msg.get(MsgType.MSG_TXT);
                                             System.out.println("用户" + username + "发送消息到聊天室" + roomName);
-                                            Message message = new Message(Commands.MSG_P2R);
+                                            Message message = new Message(Command.MSG_P2R);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)
                                                     && !StringHelper.isNullOrTrimEmpty(txt)) {
@@ -265,7 +253,7 @@ public final class ChatServer implements Runnable {
                                             System.out.println("用户" + username + "请求创建聊天室");
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             String roomInfo = msg.get(MsgType.ROOM_INFO);
-                                            Message message = new Message(Commands.CREATE_CHAT_ROOM);
+                                            Message message = new Message(Command.CREATE_CHAT_ROOM);
                                             if (!StringHelper.isNullOrTrimEmpty(roomName)) {
                                                 if (!rooms.containsKey(roomName)) {
                                                     ChatRoom room = new ChatRoom(roomName, roomInfo);
@@ -288,7 +276,7 @@ public final class ChatServer implements Runnable {
                                         case ENTER_CHAT_ROOM: {
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求加入聊天室" + roomName);
-                                            Message message = new Message(Commands.ENTER_CHAT_ROOM);
+                                            Message message = new Message(Command.ENTER_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {  // 聊天室存在
                                                 ChatRoom room = rooms.get(roomName);
                                                 if (!room.hasUser(username)) {
@@ -319,7 +307,7 @@ public final class ChatServer implements Runnable {
                                         case EXIT_CHAT_ROOM: {
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求离开聊天室" + roomName);
-                                            Message message = new Message(Commands.EXIT_CHAT_ROOM);
+                                            Message message = new Message(Command.EXIT_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {
                                                 User user = users.get(username);
                                                 if (user != null)
@@ -337,7 +325,7 @@ public final class ChatServer implements Runnable {
                                             User user = users.get(username);
                                             String roomName = user.getJoinedRoomName();
                                             System.out.println("用户" + username + "请求离开聊天室" + roomName);
-                                            Message message = new Message(Commands.EXIT_CHAT_ROOM);
+                                            Message message = new Message(Command.EXIT_CHAT_ROOM);
                                             if (rooms.containsKey(roomName)) {
                                                 if (user != null)
                                                     user.leaveRoom(roomName);
@@ -352,7 +340,7 @@ public final class ChatServer implements Runnable {
                                         }
                                         case QUERY_ALL_CHAT_ROOMS: {
                                             System.out.println("用户" + username + "请求查询聊天室列表");
-                                            Message message = new Message(Commands.QUERY_ALL_CHAT_ROOMS);
+                                            Message message = new Message(Command.QUERY_ALL_CHAT_ROOMS);
                                             Set<String> rooms = getChatRooms();
                                             if (rooms.isEmpty()) {
                                                 message.set(MsgType.ROOM_LIST_ALL, "");
@@ -377,7 +365,7 @@ public final class ChatServer implements Runnable {
                                         }
 //                                        case QUERY_MY_CHAT_ROOMS: {
 //                                            System.out.println("用户" + username + "请求查询自己加入的所有聊天室列表");
-//                                            Message message = new Message(Commands.QUERY_MY_CHAT_ROOMS);
+//                                            Message message = new Message(Command.QUERY_MY_CHAT_ROOMS);
 //                                            Set<String> rooms = users.get(username).getJoinedRooms();
 //                                            if (rooms.isEmpty()) {
 //                                                message.set(MsgType.ROOM_LIST_ALL, "");
@@ -392,13 +380,14 @@ public final class ChatServer implements Runnable {
                                         case QUERY_ROOM_MEMBERS: {
                                             String roomName = msg.get(MsgType.ROOM_NAME);
                                             System.out.println("用户" + username + "请求查询聊天室" + roomName + "的成员信息");
-                                            Message message = new Message(Commands.QUERY_ROOM_MEMBERS);
+                                            Message message = new Message(Command.QUERY_ROOM_MEMBERS);
                                             if (rooms.containsKey(roomName)) {
                                                 Set<String> users = rooms.get(roomName).getUsers();
-                                                message.set(MsgType.RESPONSE_STATUS, "成功");
                                                 if (users.isEmpty()) {
+                                                    message.set(MsgType.RESPONSE_STATUS, "空无一人");
                                                     message.set(MsgType.ROOM_MEMBERS, "");
                                                 } else {
+                                                    message.set(MsgType.RESPONSE_STATUS, "成功");
                                                     String usersStr = users.toString();
                                                     message.set(MsgType.ROOM_MEMBERS, usersStr.substring(1, usersStr.length() - 1));
                                                 }
@@ -411,7 +400,7 @@ public final class ChatServer implements Runnable {
                                         }
                                         case QUERY_USERS: {
                                             System.out.println("用户" + username + "请求获取用户列表");
-                                            Message message = new Message(Commands.QUERY_USERS);
+                                            Message message = new Message(Command.QUERY_USERS);
                                             Set<String> users = getUserList();
                                             if (users.isEmpty()) {
                                                 message.set(MsgType.USER_LIST, "");
@@ -431,7 +420,7 @@ public final class ChatServer implements Runnable {
                                             String count = msg.get(MsgType.HONGBAO_COUNT);
                                             String isRandom = msg.get(MsgType.HONGBAO_RANDOM);
 
-                                            Message message = new Message(Commands.SEND_HONGBAO);
+                                            Message message = new Message(Command.SEND_HONGBAO);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)) {
                                                 int iTotalMoney = Integer.valueOf(totalMoney);
@@ -485,7 +474,7 @@ public final class ChatServer implements Runnable {
 
                                             String hongbaoId = msg.get(MsgType.HONGBAO_ID);
 
-                                            Message message = new Message(Commands.QIANG_HONGBAO);
+                                            Message message = new Message(Command.QIANG_HONGBAO);
                                             message.set(MsgType.USER_NAME, username);
                                             if (users.containsKey(username) && rooms.containsKey(roomName)
                                                     && rooms.get(roomName).hasUser(username)

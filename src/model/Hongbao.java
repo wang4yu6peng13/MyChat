@@ -78,7 +78,7 @@ public class Hongbao {
             // 只剩一个红包
             hbUsrMap.put(nameQiang, leftMoney);
             leftMoney = 0;
-            getInfoOrMax();
+            //getInfoOrMax();
         } else {
             int getMoney = isRandom ? (new Random().nextInt(leftMoney - leftCount + 1) + 1) : getAverageMoney();
             leftMoney -= getMoney;
